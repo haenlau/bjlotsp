@@ -7,7 +7,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-:root{--p900:#0a1628;--p800:#0f2240;--p700:#152d52;--p600:#1a3a6b;--p500:#1e4785;--gold:#f0b429;--gold-l:#f7d070;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;--g400:#94a3b8;--g500:#64748b;--g600:#475569;--g700:#334155;--g800:#1e293b;--g900:#0f172a;--bg:#f0f4f8;--card:#fff;--glass:rgba(255,255,255,.85);--sh1:0 1px 2px rgba(0,0,0,.05);--sh2:0 4px 6px -1px rgba(0,0,0,.1);--sh3:0 10px 15px -3px rgba(0,0,0,.1);--sh4:0 20px 25px -5px rgba(0,0,0,.1);--r1:8px;--r2:12px;--r3:16px;--r4:24px;--tr:all .3s cubic-bezier(.4,0,.2,1)}
+:root{--p900:#0a1628;--p800:#0f2240;--p700:#152d52;--p600:#1a3a6b;--p500:#1e4785;--gold:#f0b429;--gold-l:#f7d070;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;--g400:#94a3b8;--g500:#64748b;--g600:#475569;--g700:#334155;--g800:#1e293b;--bg:#f0f4f8;--card:#fff;--glass:rgba(255,255,255,.85);--sh1:0 1px 2px rgba(0,0,0,.05);--sh2:0 4px 6px -1px rgba(0,0,0,.1);--sh3:0 10px 15px -3px rgba(0,0,0,.1);--sh4:0 20px 25px -5px rgba(0,0,0,.1);--r1:8px;--r2:12px;--r3:16px;--r4:24px;--tr:all .3s cubic-bezier(.4,0,.2,1)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--g800);line-height:1.6;min-height:100vh}
 .wrap{max-width:1400px;margin:0 auto;padding:0 20px}
@@ -15,8 +15,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .bg-fix .c{position:absolute;border-radius:50%;background:linear-gradient(135deg,var(--p500),var(--gold));opacity:.03}
 .bg-fix .c1{width:600px;height:600px;top:-200px;right:-100px}
 .bg-fix .c2{width:400px;height:400px;bottom:-100px;left:-50px}
-
-/* Header */
 .hdr{position:sticky;top:0;z-index:100;background:var(--glass);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.2);box-shadow:var(--sh1)}
 .hdr-in{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
 .logo{display:flex;align-items:center;gap:12px}
@@ -26,27 +24,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .hdr-r{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g600);background:var(--card);padding:6px 14px;border-radius:var(--r4);box-shadow:var(--sh1)}
 .dot{width:8px;height:8px;background:var(--ok);border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-/* Info Bar */
 .info-bar{display:flex;gap:12px;margin:16px 0;flex-wrap:wrap}
 .info-tag{background:var(--card);padding:8px 16px;border-radius:var(--r2);font-size:13px;color:var(--g600);box-shadow:var(--sh1);display:flex;align-items:center;gap:6px}
 .info-tag b{color:var(--p700);font-weight:600}
-
-/* Tabs */
 .tabs{background:var(--card);border-radius:var(--r3);padding:6px;box-shadow:var(--sh2);margin:16px 0;overflow-x:auto}
 .tabs-in{display:flex;gap:6px;min-width:max-content}
 .tab{display:flex;align-items:center;gap:6px;padding:10px 16px;border:none;background:0;border-radius:var(--r2);cursor:pointer;font-size:13px;font-weight:500;color:var(--g600);transition:var(--tr);white-space:nowrap}
 .tab:hover{background:var(--g100)}
 .tab.on{background:linear-gradient(135deg,var(--p700),var(--p500));color:#fff;box-shadow:0 4px 12px rgba(30,71,133,.3)}
 .tab i{font-size:15px}
-
-/* Filters */
 .filters{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;align-items:center}
 .sel{padding:8px 14px;border:1px solid var(--g200);border-radius:var(--r1);background:var(--card);font-size:13px;color:var(--g700);cursor:pointer}
 .sel:focus{outline:none;border-color:var(--p500)}
 .section-t{font-size:18px;font-weight:600;color:var(--g800)}
-
-/* Cards */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin:16px 0 40px}
 .card{background:var(--card);border-radius:var(--r3);padding:18px;box-shadow:var(--sh2);transition:var(--tr);cursor:pointer;border:1px solid transparent;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--p500),var(--gold));opacity:0;transition:var(--tr)}
@@ -65,22 +55,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .vs-col{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 10px}
 .vs-col .vs{font-size:11px;color:var(--g400);font-weight:600}
 .vs-col .hq{font-size:10px;color:var(--p600);background:rgba(30,71,133,.08);padding:2px 6px;border-radius:var(--r1)}
-.sp-row{display:flex;gap:6px;justify-content:center}
-.sp-it{flex:1;text-align:center;padding:8px 6px;background:var(--g50);border-radius:var(--r1);transition:var(--tr)}
+.sp-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.sp-it{min-width:60px;flex:1;text-align:center;padding:8px 6px;background:var(--g50);border-radius:var(--r1);transition:var(--tr)}
 .sp-it:hover{background:rgba(30,71,133,.05)}
 .sp-it .sl{font-size:10px;color:var(--g500);display:block;margin-bottom:2px}
 .sp-it .sv{font-size:16px;font-weight:700;color:var(--p700)}
 .card-ft{text-align:center;font-size:11px;color:var(--g500);margin-top:10px;padding-top:10px;border-top:1px solid var(--g100)}
-
-/* Status */
 .load{text-align:center;padding:60px 0;color:var(--g500)}
 .spin{width:36px;height:36px;border:3px solid var(--g200);border-top-color:var(--p500);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:60px 0;color:var(--g500)}
 .empty i{font-size:40px;display:block;margin-bottom:12px}
 .err-info{font-size:12px;color:var(--g400);margin-top:8px;line-height:1.8}
-
-/* Modal */
 .modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-bg.on{display:flex;animation:fadeIn .3s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -110,52 +96,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .chart-box h4{font-size:14px;font-weight:600;color:var(--g700);margin-bottom:12px}
 .chart-wrap{position:relative;height:220px}
 .sub-title{font-size:14px;font-weight:600;color:var(--g700);margin-bottom:12px}
-
-/* Footer */
 .ftr{background:var(--p900);color:rgba(255,255,255,.7);text-align:center;padding:20px 0;margin-top:auto}
 .ftr p{font-size:12px;margin-bottom:3px}
-
-@media(max-width:768px){
-.hdr-in{flex-direction:column;gap:8px}
-.info-bar{gap:8px}
-.tab{padding:8px 12px;font-size:12px}
-.tab span{display:none}
-.grid{grid-template-columns:1fr}
-.modal{margin:10px;max-height:95vh}
-.m-teams{flex-direction:column;gap:12px}
-.m-center{padding:8px 0}
-}
+@media(max-width:768px){.hdr-in{flex-direction:column;gap:8px}.tab{padding:8px 12px;font-size:12px}.tab span{display:none}.grid{grid-template-columns:1fr}.modal{margin:10px;max-height:95vh}.m-teams{flex-direction:column;gap:12px}.m-center{padding:8px 0}}
     </style>
 </head>
 <body>
 <div class="bg-fix"><div class="c c1"></div><div class="c c2"></div></div>
-
 <header class="hdr"><div class="wrap"><div class="hdr-in">
     <div class="logo"><i>⚽</i><div><h1>北京单场</h1><small>数据中心 · 实时SP值</small></div></div>
     <div class="hdr-r"><div class="dot"></div><span id="updTime">加载中...</span></div>
 </div></div></header>
-
 <main class="wrap">
     <div class="info-bar" id="infoBar">
         <div class="info-tag">📊 奖期: <b id="drawNo">-</b></div>
-        <div class="info-tag">📅 数据时间: <b id="scrapedAt">-</b></div>
+        <div class="info-tag">🏟️ 场次: <b id="matchCount">-</b></div>
+        <div class="info-tag">🟢 销售中: <b id="sellingCount">-</b></div>
         <div class="info-tag">🔗 API: <b id="apiStatus">-</b></div>
     </div>
-
     <div class="tabs"><div class="tabs-in" id="tabs"></div></div>
-
     <div class="filters">
         <span class="section-t" id="secTitle">胜平负 · 即时SP值</span>
         <div style="flex:1"></div>
         <select class="sel" id="leagueFilter"><option value="all">全部赛事</option></select>
         <select class="sel" id="statusFilter"><option value="all">全部状态</option><option value="销售中">销售中</option><option value="已开奖">已开奖</option><option value="已停售">已停售</option></select>
     </div>
-
     <div class="grid" id="grid"></div>
     <div class="load" id="loading"><div class="spin"></div><span>加载中...</span></div>
     <div class="empty" id="empty" style="display:none"><i>📭</i><p id="emptyMsg">暂无数据</p></div>
 </main>
-
 <div class="modal-bg" id="modal">
     <div class="modal">
         <div class="modal-hd"><div><div class="league-tag" id="mLeague"></div><h3 id="mTitle"></h3></div><button class="close-btn" id="mClose">&times;</button></div>
@@ -174,17 +143,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
         </div>
     </div>
 </div>
-
 <footer class="ftr"><div class="wrap"><p>数据来源：北京体彩官方网站 · 仅供参考</p><p style="font-size:10px;opacity:.5">即时SP值随投注结果浮动，实际奖金以开奖SP值为准</p></div></footer>
-
 <script>
 const API='https://api.dawn.us.ci:8899';
-const GAMES={200:{name:'胜平负',icon:'⚽',cols:['胜','平','负']},210:{name:'上下盘',icon:'📈',cols:['上盘','下盘','单','双']},230:{name:'总进球',icon:'🥅',cols:['0球','1球','2球','3球','4球','5球','6球','7+球']},240:{name:'半全场',icon:'⏱️',cols:['胜胜','胜平','胜负','平胜','平平','平负','负胜','负平','负负']},250:{name:'单场比分',icon:'🎯',cols:[]},260:{name:'下半场比分',icon:'📝',cols:[]},270:{name:'胜负过关',icon:'🏅',cols:['胜','负']}};
-let curGame=200,allData={},myChart=null;
+const GAMES={200:{name:'胜平负',icon:'⚽'},210:{name:'上下盘',icon:'📈'},230:{name:'总进球',icon:'🥅'},240:{name:'半全场',icon:'⏱️'},250:{name:'单场比分',icon:'🎯'},260:{name:'下半场比分',icon:'📝'},270:{name:'胜负过关',icon:'🏅'}};
+let curGame=200,curData=null,myChart=null;
 const $=id=>document.getElementById(id);
-const parseSp=d=>typeof d==='string'?JSON.parse(d||'[]'):(d||[]);
 
-// Init
 document.addEventListener('DOMContentLoaded',()=>{
     renderTabs();
     $('statusFilter').onchange=renderCards;
@@ -223,14 +188,18 @@ async function loadAll(){
         const stats=await statsR.json();
 
         if(sp.code===0){
-            allData=sp;
+            curData=sp;
+            $('drawNo').textContent=sp.draw_no||'-';
+            $('matchCount').textContent=sp.count||0;
             buildLeagueFilter(sp.data||[]);
             renderCards();
         }
         if(stats.code===0){
-            $('scrapedAt').textContent=stats.scraped_at?new Date(stats.scraped_at).toLocaleString():'-';
+            const g=stats.data[curGame];
+            if(g){
+                $('sellingCount').textContent=g.selling_count||0;
+            }
         }
-        $('drawNo').textContent=sp.draw_no||'-';
         $('apiStatus').textContent='✅ 正常';
         $('apiStatus').style.color='var(--ok)';
         $('updTime').textContent='更新: '+new Date().toLocaleTimeString();
@@ -252,7 +221,8 @@ function buildLeagueFilter(records){
 }
 
 function renderCards(){
-    let data=allData.data||[];
+    if(!curData)return;
+    let data=curData.data||[];
     const sf=$('statusFilter').value;
     const lf=$('leagueFilter').value;
     if(sf!=='all')data=data.filter(m=>m.status===sf);
@@ -263,21 +233,23 @@ function renderCards(){
     $('grid').innerHTML=data.map(m=>cardHTML(m)).join('');
     $('grid').querySelectorAll('.card').forEach(c=>{
         c.onclick=()=>{
-            const m=(allData.data||[]).find(d=>d.match_no==c.dataset.id);
+            const m=(curData.data||[]).find(d=>d.match_no==c.dataset.id);
             if(m)openModal(m);
         };
     });
 }
 
+function spObjToPairs(sp){
+    // sp = {胜: 1.93, 平: 3.36, 负: 3.67} => [{label, value}, ...]
+    if(!sp||typeof sp!=='object')return[];
+    return Object.entries(sp).map(([k,v])=>({label:k,value:v}));
+}
+
 function cardHTML(m){
-    const sp=parseSp(m.sp_data);
-    const cols=GAMES[curGame].cols||[];
+    const pairs=spObjToPairs(m.sp);
     const bc=m.status==='销售中'?'badge-ok':m.status==='已开奖'?'badge-off':'badge-stop';
-    const isBF=curGame===250||curGame===260;
-    const sps=isBF
-        ?sp.slice(0,4).map((v,i)=>`<div class="sp-it"><span class="sl">${v>0?'选项'+(i+1):'-'}</span><span class="sv">${v>0?v.toFixed(2):'-'}</span></div>`).join('')
-        :sp.map((v,i)=>`<div class="sp-it"><span class="sl">${cols[i]||'选项'+(i+1)}</span><span class="sv">${v>0?v.toFixed(2):'-'}</span></div>`).join('');
     const hq=m.handicap&&m.handicap!=='0'?`让 ${m.handicap}`:'非让球';
+    const sps=pairs.slice(0,6).map(p=>`<div class="sp-it"><span class="sl">${p.label}</span><span class="sv">${p.value>0?p.value.toFixed(2):'-'}</span></div>`).join('');
     return `<div class="card" data-id="${m.match_no}">
         <div class="card-hd"><span class="league">${m.league||'-'}</span><span class="badge ${bc}">${m.status||'-'}</span></div>
         <div class="teams">
@@ -291,8 +263,7 @@ function cardHTML(m){
 }
 
 async function openModal(m){
-    const sp=parseSp(m.sp_data);
-    const cols=GAMES[curGame].cols||[];
+    const pairs=spObjToPairs(m.sp);
     $('mLeague').textContent=m.league||'-';
     $('mTitle').textContent='场次 '+m.match_no;
     $('mHome').textContent=m.host_team||'主队';
@@ -301,23 +272,30 @@ async function openModal(m){
     $('mHandicap').textContent=m.handicap&&m.handicap!=='0'?'让球: '+m.handicap:'非让球';
     $('mTime').textContent=m.match_time||'-';
     $('mStatus').textContent=m.status||'-';
-    $('mSp').innerHTML=sp.map((v,i)=>`<div class="sp-gi"><span class="sgl">${cols[i]||'选项'+(i+1)}</span><span class="sgv">${v>0?v.toFixed(2):'-'}</span></div>`).join('');
+    $('mSp').innerHTML=pairs.map(p=>`<div class="sp-gi"><span class="sgl">${p.label}</span><span class="sgv">${p.value>0?p.value.toFixed(2):'-'}</span></div>`).join('');
     $('modal').classList.add('on');
     document.body.style.overflow='hidden';
     try{
-        const r=await fetch(`${API}/api/sp/history?game_id=${curGame}&draw_no=${allData.draw_no}&match_no=${m.match_no}&hours=48`);
+        const r=await fetch(`${API}/api/sp/history?game_id=${curGame}&match_no=${m.match_no}&hours=48`);
         const d=await r.json();
         if(d.code===0&&d.data.length)renderChart(d.data);else emptyChart();
     }catch{emptyChart();}
 }
 
 function renderChart(hist){
-    const cols=GAMES[curGame].cols||[];
     const ts=hist.map(d=>new Date(d.scraped_at).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}));
-    const arr=hist.map(d=>parseSp(d.sp_data));
-    const vi=[];if(arr.length)arr[0].forEach((v,i)=>{if(v>0)vi.push(i)});
+    // 从所有历史记录中收集所有SP列名
+    const allKeys=new Set();
+    hist.forEach(h=>{if(h.sp&&typeof h.sp==='object')Object.keys(h.sp).forEach(k=>allKeys.add(k))});
+    const keys=[...allKeys];
     const colors=['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1'];
-    const ds=vi.map((idx,i)=>({label:cols[idx]||'选项'+(idx+1),data:arr.map(sp=>sp[idx]||null),borderColor:colors[i%colors.length],backgroundColor:colors[i%colors.length]+'20',tension:.4,fill:true,pointRadius:2,pointHoverRadius:5}));
+    const ds=keys.map((k,i)=>({
+        label:k,
+        data:hist.map(h=>h.sp&&h.sp[k]?h.sp[k]:null),
+        borderColor:colors[i%colors.length],
+        backgroundColor:colors[i%colors.length]+'20',
+        tension:.4,fill:true,pointRadius:2,pointHoverRadius:5
+    }));
     if(myChart)myChart.destroy();
     myChart=new Chart($('chart'),{type:'line',data:{labels:ts,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true}},tooltip:{backgroundColor:'rgba(15,23,42,.9)',padding:10,cornerRadius:8}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,font:{size:10}}},y:{grid:{color:'rgba(0,0,0,.05)'}}}}});
 }
