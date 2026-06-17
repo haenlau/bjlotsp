@@ -207,12 +207,27 @@ function getTeamIcon(teamName,leagueName){
     for(const[name,code]of Object.entries(COUNTRY_MAP)){
         if(teamName.includes(name))return`<img src="${FLAG_CDN}/${code}.png" alt="${name}" style="width:20px;height:14px;border-radius:2px;object-fit:cover;vertical-align:middle">`;
     }
-    // 联赛 → 文字徽章
+    // 俱乐部 → API获取的logo
+    const crest=findCrest(teamName);
+    if(crest)return`<img src="${crest}" alt="" style="width:18px;height:18px;object-fit:contain;vertical-align:middle" onerror="this.style.display='none'">`;
+    // 联赛徽章兜底
     if(leagueName)return leagueBadge(leagueName);
     return'';
 }
+
+function findCrest(teamName){
+    if(!teamName)return null;
+    // 精确匹配
+    if(crestMap[teamName])return crestMap[teamName];
+    // 模糊匹配
+    for(const[key,val]of Object.entries(crestMap)){
+        if(teamName.includes(key)||key.includes(teamName))return val;
+    }
+    return null;
+}
 let HQ_FILTER='all';
 let curGame=200,curData=null,myChart=null,retryTimer=null;
+let crestMap={}; // 球队名 → logo URL
 const $=id=>document.getElementById(id);
 
 // ==================== 缓存 ====================
@@ -319,9 +334,19 @@ document.addEventListener('DOMContentLoaded',()=>{
     $('mClose').onclick=closeModal;
     $('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};
     document.onkeydown=e=>{if(e.key==='Escape')closeModal()};
+    loadCrests();
     loadAll();
     setInterval(loadAll,30000);
 });
+
+async function loadCrests(){
+    try{
+        const r=await fetchRetry(`${API}/api/crests`,2,2000);
+        const d=await r.json();
+        if(d.code===0&&d.data)crestMap=d.data;
+        console.log('[crests] 加载了',Object.keys(crestMap).length,'个球队logo');
+    }catch{console.log('[crests] 加载失败，使用默认图标')}
+}
 
 function renderTabs(){
     $('tabs').innerHTML=Object.entries(GAMES).map(([id,g])=>
