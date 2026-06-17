@@ -102,6 +102,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .hq-btn{font-size:12px;padding:6px 12px;cursor:pointer;border:1px solid var(--g200);background:var(--card);border-radius:var(--r1);color:var(--g600);transition:var(--tr)}
 .hq-btn.on{background:var(--p700);color:#fff;border-color:var(--p700)}
 .hq-btn:hover{border-color:var(--p500)}
+.drop{position:relative;user-select:none}
+.drop-btn{padding:8px 14px;border:1px solid var(--g200);border-radius:var(--r1);background:var(--card);font-size:13px;color:var(--g700);cursor:pointer;display:flex;align-items:center;gap:6px;transition:var(--tr)}
+.drop-btn:hover{border-color:var(--p500)}
+.drop-btn .arrow{font-size:10px;transition:transform .2s}
+.drop.open .arrow{transform:rotate(180deg)}
+.drop-menu{position:absolute;top:calc(100% + 4px);right:0;background:var(--card);border:1px solid var(--g200);border-radius:var(--r2);box-shadow:var(--sh3);z-index:50;min-width:120px;display:none;overflow:hidden}
+.drop.open .drop-menu{display:block}
+.drop-item{padding:10px 14px;font-size:13px;color:var(--g700);cursor:pointer;transition:var(--tr)}
+.drop-item:hover{background:var(--g100)}
+.drop-item.on{background:var(--p700);color:#fff}
     </style>
 </head>
 <body>
@@ -121,10 +131,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
     <div class="filters">
         <span class="section-t" id="secTitle">胜平负 · 即时SP值</span>
         <div style="flex:1"></div>
-        <div id="hqBtns" style="display:flex;gap:4px">
-            <button class="sel hq-btn on" data-hq="all">全部</button>
-            <button class="sel hq-btn" data-hq="rq">让球</button>
-            <button class="sel hq-btn" data-hq="frq">非让球</button>
+        <div class="drop" id="hqDrop">
+            <div class="drop-btn" id="hqBtn">是否让球 <span class="arrow">▼</span></div>
+            <div class="drop-menu">
+                <div class="drop-item on" data-hq="all">全部</div>
+                <div class="drop-item" data-hq="rq">仅让球</div>
+                <div class="drop-item" data-hq="frq">非让球</div>
+            </div>
         </div>
         <select class="sel" id="leagueFilter"><option value="all">全部赛事</option></select>
         <select class="sel" id="statusFilter"><option value="all">全部状态</option><option value="销售中">销售中</option><option value="已开奖">已开奖</option><option value="已停售">已停售</option></select>
@@ -180,15 +193,21 @@ document.addEventListener('DOMContentLoaded',()=>{
     renderTabs();
     $('statusFilter').onchange=renderCards;
     $('leagueFilter').onchange=renderCards;
-    // 让球筛选按钮
-    document.querySelectorAll('.hq-btn').forEach(b=>{
+    // 让球下拉菜单
+    const hqDrop=$('hqDrop');
+    $('hqBtn').onclick=e=>{e.stopPropagation();hqDrop.classList.toggle('open')};
+    document.querySelectorAll('.drop-item').forEach(b=>{
         b.onclick=()=>{
-            document.querySelectorAll('.hq-btn').forEach(x=>x.classList.remove('on'));
+            document.querySelectorAll('.drop-item').forEach(x=>x.classList.remove('on'));
             b.classList.add('on');
             HQ_FILTER=b.dataset.hq;
+            const label=b.textContent;
+            $('hqBtn').innerHTML=label+' <span class="arrow">▼</span>';
+            hqDrop.classList.remove('open');
             renderCards();
         };
     });
+    document.addEventListener('click',()=>hqDrop.classList.remove('open'));
     $('mClose').onclick=closeModal;
     $('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};
     document.onkeydown=e=>{if(e.key==='Escape')closeModal()};
@@ -264,6 +283,12 @@ function renderCards(){
     if(lf!=='all')data=data.filter(m=>m.league===lf);
     if(HQ_FILTER==='rq')data=data.filter(m=>m.handicap&&m.handicap!=='0');
     if(HQ_FILTER==='frq')data=data.filter(m=>!m.handicap||m.handicap==='0');
+    // 销售中优先排序
+    data=[...data].sort((a,b)=>{
+        const sa=a.status==='销售中'?0:a.status==='已停售'?1:2;
+        const sb=b.status==='销售中'?0:b.status==='已停售'?1:2;
+        return sa-sb;
+    });
     $('loading').style.display='none';
     if(!data.length){$('grid').innerHTML='';$('empty').style.display='block';$('emptyMsg').textContent=sf!=='all'||lf!=='all'?'没有符合条件的比赛':'暂无数据';return}
     $('empty').style.display='none';
