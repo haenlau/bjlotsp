@@ -98,7 +98,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .sub-title{font-size:14px;font-weight:600;color:var(--g700);margin-bottom:12px}
 .ftr{background:var(--p900);color:rgba(255,255,255,.7);text-align:center;padding:20px 0;margin-top:auto}
 .ftr p{font-size:12px;margin-bottom:3px}
-@media(max-width:768px){.hdr-in{flex-direction:column;gap:8px}.tab{padding:8px 12px;font-size:12px}.tab span{display:none}.grid{grid-template-columns:1fr}.modal{margin:10px;max-height:95vh}.m-teams{flex-direction:column;gap:12px}.m-center{padding:8px 0}}
+@media(max-width:768px){.hdr-in{flex-direction:column;gap:8px}.tab{padding:8px 12px;font-size:12px}.tab span{display:none}.grid{grid-template-columns:1fr}.modal{margin:10px;max-height:95vh}.m-teams{flex-direction:column;gap:12px}.m-center{padding:8px 0}.filters{gap:6px}}
+.hq-btn{font-size:12px;padding:6px 12px;cursor:pointer;border:1px solid var(--g200);background:var(--card);border-radius:var(--r1);color:var(--g600);transition:var(--tr)}
+.hq-btn.on{background:var(--p700);color:#fff;border-color:var(--p700)}
+.hq-btn:hover{border-color:var(--p500)}
     </style>
 </head>
 <body>
@@ -118,6 +121,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
     <div class="filters">
         <span class="section-t" id="secTitle">胜平负 · 即时SP值</span>
         <div style="flex:1"></div>
+        <div id="hqBtns" style="display:flex;gap:4px">
+            <button class="sel hq-btn on" data-hq="all">全部</button>
+            <button class="sel hq-btn" data-hq="rq">让球</button>
+            <button class="sel hq-btn" data-hq="frq">非让球</button>
+        </div>
         <select class="sel" id="leagueFilter"><option value="all">全部赛事</option></select>
         <select class="sel" id="statusFilter"><option value="all">全部状态</option><option value="销售中">销售中</option><option value="已开奖">已开奖</option><option value="已停售">已停售</option></select>
     </div>
@@ -146,14 +154,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 <footer class="ftr"><div class="wrap"><p>数据来源：北京体彩官方网站 · 仅供参考</p><p style="font-size:10px;opacity:.5">即时SP值随投注结果浮动，实际奖金以开奖SP值为准</p></div></footer>
 <script>
 const API='https://api.dawn.us.ci:8899';
+let HQ_FILTER='all'; // all | rq | frq
 const GAMES={200:{name:'胜平负',icon:'⚽'},210:{name:'上下盘',icon:'📈'},230:{name:'总进球',icon:'🥅'},240:{name:'半全场',icon:'⏱️'},250:{name:'单场比分',icon:'🎯'},260:{name:'下半场比分',icon:'📝'},270:{name:'胜负过关',icon:'🏅'}};
 let curGame=200,curData=null,myChart=null;
 const $=id=>document.getElementById(id);
+
+// 带重试的fetch
+async function fetchRetry(url, retries=3, delay=1000){
+    for(let i=0;i<retries;i++){
+        try{
+            const ctrl=new AbortController();
+            const timer=setTimeout(()=>ctrl.abort(),8000);
+            const r=await fetch(url,{signal:ctrl.signal});
+            clearTimeout(timer);
+            if(!r.ok)throw new Error(`HTTP ${r.status}`);
+            return r;
+        }catch(e){
+            if(i===retries-1)throw e;
+            await new Promise(r=>setTimeout(r,delay*(i+1)));
+        }
+    }
+}
 
 document.addEventListener('DOMContentLoaded',()=>{
     renderTabs();
     $('statusFilter').onchange=renderCards;
     $('leagueFilter').onchange=renderCards;
+    // 让球筛选按钮
+    document.querySelectorAll('.hq-btn').forEach(b=>{
+        b.onclick=()=>{
+            document.querySelectorAll('.hq-btn').forEach(x=>x.classList.remove('on'));
+            b.classList.add('on');
+            HQ_FILTER=b.dataset.hq;
+            renderCards();
+        };
+    });
     $('mClose').onclick=closeModal;
     $('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};
     document.onkeydown=e=>{if(e.key==='Escape')closeModal()};
@@ -181,8 +216,8 @@ async function loadAll(){
     $('empty').style.display='none';
     try{
         const[spR,statsR]=await Promise.all([
-            fetch(`${API}/api/sp/latest?game_id=${curGame}`),
-            fetch(`${API}/api/stats`)
+            fetchRetry(`${API}/api/sp/latest?game_id=${curGame}`),
+            fetchRetry(`${API}/api/stats`)
         ]);
         const sp=await spR.json();
         const stats=await statsR.json();
@@ -227,6 +262,8 @@ function renderCards(){
     const lf=$('leagueFilter').value;
     if(sf!=='all')data=data.filter(m=>m.status===sf);
     if(lf!=='all')data=data.filter(m=>m.league===lf);
+    if(HQ_FILTER==='rq')data=data.filter(m=>m.handicap&&m.handicap!=='0');
+    if(HQ_FILTER==='frq')data=data.filter(m=>!m.handicap||m.handicap==='0');
     $('loading').style.display='none';
     if(!data.length){$('grid').innerHTML='';$('empty').style.display='block';$('emptyMsg').textContent=sf!=='all'||lf!=='all'?'没有符合条件的比赛':'暂无数据';return}
     $('empty').style.display='none';
@@ -276,7 +313,7 @@ async function openModal(m){
     $('modal').classList.add('on');
     document.body.style.overflow='hidden';
     try{
-        const r=await fetch(`${API}/api/sp/history?game_id=${curGame}&match_no=${m.match_no}&hours=48`);
+        const r=await fetchRetry(`${API}/api/sp/history?game_id=${curGame}&match_no=${m.match_no}&hours=48`);
         const d=await r.json();
         if(d.code===0&&d.data.length)renderChart(d.data);else emptyChart();
     }catch{emptyChart();}
