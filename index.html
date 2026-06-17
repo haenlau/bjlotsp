@@ -70,13 +70,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-bg.on{display:flex;animation:fadeIn .3s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal{background:var(--card);border-radius:var(--r4);width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:var(--sh4);animation:slideUp .3s}
+.modal-bg.on body{overflow:hidden}
+.modal{background:var(--card);border-radius:var(--r4);width:100%;max-width:680px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh4);animation:slideUp .3s;overflow:hidden}
 @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-hd{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--g100);position:sticky;top:0;background:var(--card);z-index:10}
+.modal-hd{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--g100);flex-shrink:0;background:var(--card);z-index:10}
 .modal-hd h3{font-size:16px;font-weight:600}
 .modal-hd .league-tag{font-size:11px;color:var(--p600);font-weight:600}
-.close-btn{width:32px;height:32px;border:none;background:var(--g100);border-radius:50%;font-size:18px;color:var(--g600);cursor:pointer}
+.close-btn{width:32px;height:32px;border:none;background:var(--g100);border-radius:50%;font-size:18px;color:var(--g600);cursor:pointer;flex-shrink:0}
 .close-btn:hover{background:var(--g200)}
+.modal-bd{padding:20px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--g300) transparent}
+.modal-bd::-webkit-scrollbar{width:5px}
+.modal-bd::-webkit-scrollbar-track{background:transparent}
+.modal-bd::-webkit-scrollbar-thumb{background:var(--g300);border-radius:3px}
+.modal-bd::-webkit-scrollbar-thumb:hover{background:var(--g400)}
 .modal-bd{padding:20px}
 .m-info{background:linear-gradient(135deg,var(--p800),var(--p600));border-radius:var(--r3);padding:20px;color:#fff;margin-bottom:16px}
 .m-teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -98,7 +104,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .sub-title{font-size:14px;font-weight:600;color:var(--g700);margin-bottom:12px}
 .ftr{background:var(--p900);color:rgba(255,255,255,.7);text-align:center;padding:20px 0;margin-top:auto}
 .ftr p{font-size:12px;margin-bottom:3px}
-@media(max-width:768px){.hdr-in{flex-direction:column;gap:8px}.tab{padding:8px 12px;font-size:12px}.tab span{display:none}.grid{grid-template-columns:1fr}.modal{margin:10px;max-height:95vh}.m-teams{flex-direction:column;gap:12px}.m-center{padding:8px 0}.info-bar{gap:6px}.info-tag{padding:6px 10px;font-size:12px}.filters{flex-wrap:wrap;gap:8px}.spacer{display:none!important}.section-t{flex-basis:100%;font-size:15px;margin-bottom:2px}.filters .sel{flex:1 1 0%;min-width:0;padding:10px 4px;font-size:13px}}
+@media(max-width:768px){.hdr-in{flex-direction:column;gap:8px}.tab{padding:8px 12px;font-size:12px}.tab span{display:none}.grid{grid-template-columns:1fr}.modal{margin:10px;max-height:95vh}.m-teams{flex-direction:column;gap:12px}.m-center{padding:8px 0}.info-bar{gap:6px}.info-tag{padding:6px 10px;font-size:12px}.filters{flex-wrap:wrap;gap:8px}.spacer{display:none!important}.section-t{flex-basis:100%;font-size:15px;margin-bottom:2px}.filters .sel{flex:1 1 0%;min-width:0;padding:10px 4px;font-size:13px}.modal-bd{padding:16px}}
 @media(max-width:380px){.info-tag{padding:5px 8px;font-size:11px}.info-tag b{font-size:12px}}
 .hq-btn{font-size:12px;padding:6px 12px;cursor:pointer;border:1px solid var(--g200);background:var(--card);border-radius:var(--r1);color:var(--g600);transition:var(--tr)}
 .hq-btn.on{background:var(--p700);color:#fff;border-color:var(--p700)}
@@ -342,7 +348,9 @@ function cardHTML(m){
     const pairs=spObjToPairs(m.sp);
     const bc=m.status==='销售中'?'badge-ok':m.status==='已开奖'?'badge-off':'badge-stop';
     const hq=m.handicap&&m.handicap!=='0'?`让 ${m.handicap}`:'非让球';
-    const sps=pairs.slice(0,6).map(p=>`<div class="sp-it"><span class="sl">${p.label}</span><span class="sv">${p.value>0?p.value.toFixed(2):'-'}</span></div>`).join('');
+    const sps=pairs.length>8
+        ?pairs.slice(0,8).map(p=>`<div class="sp-it"><span class="sl">${p.label}</span><span class="sv">${p.value>0?p.value.toFixed(2):'-'}</span></div>`).join('')+`<div class="sp-it sp-more" style="color:var(--g400);font-size:11px;justify-content:center;display:flex;align-items:center;min-width:auto;padding:8px 12px">+${pairs.length-8}项</div>`
+        :pairs.map(p=>`<div class="sp-it"><span class="sl">${p.label}</span><span class="sv">${p.value>0?p.value.toFixed(2):'-'}</span></div>`).join('');
     return `<div class="card" data-id="${m.match_no}">
         <div class="card-hd"><span class="league">${m.league||'-'}</span><span class="badge ${bc}">${m.status||'-'}</span></div>
         <div class="teams">
