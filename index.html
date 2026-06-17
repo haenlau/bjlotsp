@@ -152,28 +152,105 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 <footer class="ftr"><div class="wrap"><p style="font-size:12px;font-weight:500;opacity:.85;margin-bottom:6px">免责声明</p><p style="font-size:11px;opacity:.7;line-height:1.8">本域名与北京市体育彩票管理中心无任何关联，仅为个人技术学习与研究测试站点。本站采集的数据来自公开网页，不保证准确性、完整性和时效性，不构成任何投注建议或业务办理依据。如需查询真实数据或办理相关业务，请务必访问 <a href="https://www.bjlot.com.cn" target="_blank" style="color:var(--gold-l);text-decoration:underline">北京体彩官方网站</a>。使用本站即表示您已知悉并同意以上声明。</p></div></footer>
 <script>
 const API='https://api.dawn.us.ci:8899';
-let HQ_FILTER='all'; // all | rq | frq
-const GAMES={200:{name:'胜平负',icon:'⚽'},210:{name:'上下盘',icon:'📈'},230:{name:'总进球',icon:'🥅'},240:{name:'半全场',icon:'⏱️'},250:{name:'单场比分',icon:'🎯'},260:{name:'下半场比分',icon:'📝'},270:{name:'胜负过关',icon:'🏅'}};
-let curGame=200,curData=null,myChart=null;
+let HQ_FILTER='all';
+let curGame=200,curData=null,myChart=null,retryTimer=null;
 const $=id=>document.getElementById(id);
 
-// 带重试的fetch
-async function fetchRetry(url, retries=3, delay=1000){
+// ==================== 缓存 ====================
+function cacheSave(key,data){try{localStorage.setItem('bj_'+key,JSON.stringify({ts:Date.now(),data}))}catch{}}
+function cacheLoad(key,maxAge){
+    try{
+        const raw=localStorage.getItem('bj_'+key);
+        if(!raw)return null;
+        const p=JSON.parse(raw);
+        if(maxAge&&Date.now()-p.ts>maxAge)return null;
+        return p.data;
+    }catch{return null}
+}
+
+// ==================== 带重试的fetch ====================
+async function fetchRetry(url,retries=5,delay=3000){
     for(let i=0;i<retries;i++){
         try{
             const ctrl=new AbortController();
-            const timer=setTimeout(()=>ctrl.abort(),8000);
+            const timer=setTimeout(()=>ctrl.abort(),10000);
             const r=await fetch(url,{signal:ctrl.signal});
             clearTimeout(timer);
             if(!r.ok)throw new Error(`HTTP ${r.status}`);
             return r;
         }catch(e){
-            if(i===retries-1)throw e;
-            await new Promise(r=>setTimeout(r,delay*(i+1)));
+            console.warn(`[fetch] 第${i+1}次失败: ${e.message}`);
+            if(i<retries-1)await new Promise(r=>setTimeout(r,delay));
         }
+    }
+    throw new Error('多次重试失败');
+}
+
+// ==================== 加载数据（带缓存兜底）====================
+async function loadAll(){
+    $('loading').style.display='block';
+    $('empty').style.display='none';
+    try{
+        const[spR,statsR]=await Promise.all([
+            fetchRetry(`${API}/api/sp/latest?game_id=${curGame}`),
+            fetchRetry(`${API}/api/stats`)
+        ]);
+        const sp=await spR.json();
+        const stats=await statsR.json();
+
+        if(sp.code===0){
+            curData=sp;
+            cacheSave('sp_'+curGame,sp);
+            $('drawNo').textContent=sp.draw_no||'-';
+            $('matchCount').textContent=sp.count||0;
+            buildLeagueFilter(sp.data||[]);
+            buildDateFilter(sp.data||[]);
+            renderCards();
+        }
+        if(stats.code===0){
+            cacheSave('stats',stats);
+            const g=stats.data[curGame];
+            if(g)$('sellingCount').textContent=g.selling_count||0;
+        }
+        $('updTime').textContent='更新: '+new Date().toLocaleTimeString();
+        stopRetry();
+    }catch(e){
+        console.error('[loadAll] 失败:',e.message);
+        // 用缓存兜底
+        const cachedSp=cacheLoad('sp_'+curGame,30*60*1000);
+        const cachedStats=cacheLoad('stats',30*60*1000);
+        if(cachedSp){
+            curData=cachedSp;
+            $('drawNo').textContent=cachedSp.draw_no||'-';
+            $('matchCount').textContent=cachedSp.count||0;
+            buildLeagueFilter(cachedSp.data||[]);
+            buildDateFilter(cachedSp.data||[]);
+            renderCards();
+            $('updTime').textContent='⚠ 使用缓存数据';
+            $('loading').style.display='none';
+        }else{
+            $('loading').style.display='none';
+            $('grid').innerHTML='<div class="empty"><i>📡</i><p>连接服务器中...</p><p class="err-info">每隔3秒自动重试，请稍候</p></div>';
+        }
+        if(cachedStats){
+            const g=cachedStats.data[curGame];
+            if(g)$('sellingCount').textContent=g.selling_count||0;
+        }
+        startRetry();
     }
 }
 
+function startRetry(){
+    if(retryTimer)return;
+    retryTimer=setInterval(()=>{
+        console.log('[retry] 自动重试...');
+        loadAll();
+    },3000);
+}
+function stopRetry(){
+    if(retryTimer){clearInterval(retryTimer);retryTimer=null;}
+}
+const GAMES={200:{name:'胜平负',icon:'⚽'},210:{name:'上下盘',icon:'📈'},230:{name:'总进球',icon:'🥅'},240:{name:'半全场',icon:'⏱️'},250:{name:'单场比分',icon:'🎯'},260:{name:'下半场比分',icon:'📝'},270:{name:'胜负过关',icon:'🏅'}};
 document.addEventListener('DOMContentLoaded',()=>{
     renderTabs();
     $('statusFilter').onchange=renderCards;
@@ -200,39 +277,6 @@ function renderTabs(){
             loadAll();
         };
     });
-}
-
-async function loadAll(){
-    $('loading').style.display='block';
-    $('empty').style.display='none';
-    try{
-        const[spR,statsR]=await Promise.all([
-            fetchRetry(`${API}/api/sp/latest?game_id=${curGame}`),
-            fetchRetry(`${API}/api/stats`)
-        ]);
-        const sp=await spR.json();
-        const stats=await statsR.json();
-
-        if(sp.code===0){
-            curData=sp;
-            $('drawNo').textContent=sp.draw_no||'-';
-            $('matchCount').textContent=sp.count||0;
-            buildLeagueFilter(sp.data||[]);
-            buildDateFilter(sp.data||[]);
-            renderCards();
-        }
-        if(stats.code===0){
-            const g=stats.data[curGame];
-            if(g){
-                $('sellingCount').textContent=g.selling_count||0;
-            }
-        }
-        $('updTime').textContent='更新: '+new Date().toLocaleTimeString();
-    }catch(e){
-        console.error(e);
-        $('loading').style.display='none';
-        $('grid').innerHTML=`<div class="empty"><i>⚠️</i><p>加载失败</p><div class="err-info">API: ${API}<br>${e.message}</div></div>`;
-    }
 }
 
 function buildLeagueFilter(records){
