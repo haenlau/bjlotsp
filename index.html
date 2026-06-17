@@ -158,6 +158,61 @@ body.modal-open{overflow:hidden;position:fixed;width:100%}
 <footer class="ftr"><div class="wrap"><p style="font-size:12px;font-weight:500;opacity:.85;margin-bottom:6px">免责声明</p><p style="font-size:11px;opacity:.7;line-height:1.8">本域名与北京市体育彩票管理中心无任何关联，仅为个人技术学习与研究测试站点。本站采集的数据来自公开网页，不保证准确性、完整性和时效性，不构成任何投注建议或业务办理依据。如需查询真实数据或办理相关业务，请务必访问 <a href="https://www.bjlot.com.cn" target="_blank" style="color:var(--gold-l);text-decoration:underline">北京体彩官方网站</a>。使用本站即表示您已知悉并同意以上声明。</p></div></footer>
 <script>
 const API='https://api.dawn.us.ci:8899';
+const FLAG_CDN='https://flagcdn.com/w40';
+
+// 国家队名称 → ISO代码（国旗）
+const COUNTRY_MAP={
+    '中国':'cn','日本':'jp','韩国':'kr','澳大利亚':'au','伊朗':'ir','沙特':'sa','卡塔尔':'qa',
+    '阿联酋':'ae','伊拉克':'iq','约旦':'jo','叙利亚':'sy','黎巴嫩':'lb','阿曼':'om','巴林':'bh',
+    '朝鲜':'kp','乌兹别克斯坦':'uz','泰国':'th','越南':'vn','印度尼西亚':'id','马来西亚':'my',
+    '印度':'in','菲律宾':'ph','吉尔吉斯斯坦':'kg','塔吉克斯坦':'tj','土库曼斯坦':'tm',
+    '英格兰':'gb-eng','苏格兰':'gb-sct','威尔士':'gb-wls','北爱尔兰':'gb-nir',
+    '德国':'de','法国':'fr','西班牙':'es','意大利':'it','葡萄牙':'pt','荷兰':'nl',
+    '比利时':'be','瑞士':'ch','奥地利':'at','波兰':'pl','捷克':'cz','斯洛伐克':'sk',
+    '克罗地亚':'hr','塞尔维亚':'rs','斯洛文尼亚':'si','波黑':'ba','北马其顿':'mk',
+    '黑山':'me','阿尔巴尼亚':'al','希腊':'gr','土耳其':'tr','罗马尼亚':'ro','保加利亚':'bg',
+    '匈牙利':'hu','丹麦':'dk','挪威':'no','瑞典':'se','芬兰':'fi','冰岛':'is',
+    '爱尔兰':'ie','俄罗斯':'ru','乌克兰':'ua','白俄罗斯':'by','格鲁吉亚':'ge','亚美尼亚':'am',
+    '阿塞拜疆':'az','以色列':'il','塞浦路斯':'cy','科索沃':'xk','卢森堡':'lu','马耳他':'mt',
+    '摩尔多瓦':'md','立陶宛':'lt','拉脱维亚':'lv','爱沙尼亚':'ee',
+    '巴西':'br','阿根廷':'ar','乌拉圭':'uy','哥伦比亚':'co','智利':'cl','厄瓜多尔':'ec',
+    '巴拉圭':'py','秘鲁':'pe','玻利瓦尔':'bo','委内瑞拉':'ve',
+    '墨西哥':'mx','美国':'us','加拿大':'ca','哥斯达黎加':'cr','巴拿马':'pa',
+    '洪都拉斯':'hn','牙买加':'jm','特立尼达':'tt','萨尔瓦多':'sv','海地':'ht',
+    '尼日利亚':'ng','喀麦隆':'cm','科特迪瓦':'ci','塞内加尔':'sn','加纳':'gh',
+    '埃及':'eg','摩洛哥':'ma','突尼斯':'tn','阿尔及利亚':'dz','南非':'za',
+    '刚果':'cd','刚果(金)':'cd','刚果金':'cd','赞比亚':'zm','马里':'ml',
+    '新西兰':'nz','洪都拉斯':'hn','哥斯达黎加':'cr',
+};
+
+// 联赛图标
+const LEAGUE_ICON={
+    '世界杯':'🌍','欧洲杯':'🇪🇺','亚洲杯':'🌏','美洲杯':'🌎','非洲杯':'🌍',
+    '欧冠杯':'⭐','欧罗巴联赛':'⭐','联赛':'⭐','洲际杯':'🏆','解放者杯':'🏆','南俱杯':'🏆',
+    '英超':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','西甲':'🇪🇸','意甲':'🇮🇹','德甲':'🇩🇪','法甲':'🇫🇷',
+    '葡超':'🇵🇹','荷甲':'🇳🇱','比甲':'🇧🇪','苏超':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','英冠':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    '英甲':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','英乙':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','西乙':'🇪🇸','意乙':'🇮🇹','德乙':'🇩🇪',
+    '法乙':'🇫🇷','荷乙':'🇳🇱','葡甲':'🇵🇹','罗甲':'🇷🇴','土超':'🇹🇷','波兰甲':'🇵🇱',
+    '捷克甲':'🇨🇿','瑞士甲':'🇨🇭','瑞士超':'🇨🇭','丹超':'🇩🇰','丹甲':'🇩🇰',
+    '瑞典超':'🇸🇪','瑞典甲':'🇸🇪','挪威超':'🇳🇴','挪威甲':'🇳🇴','芬兰超':'🇫🇮','芬甲':'🇫🇮','芬超':'🇫🇮',
+    '冰岛超':'🇮🇸','奥甲':'🇦🇹','奥乙':'🇦🇹','希腊超':'🇬🇷','匈牙利':'🇭🇺',
+    '韩K':'🇰🇷','K联赛':'🇰🇷','J联赛':'🇯🇵','J1联赛':'🇯🇵','J2联赛':'🇯🇵',
+    '美职':'🇺🇸','美金杯':'🇺🇸','巴甲':'🇧🇷','巴西甲':'🇧🇷','巴西乙':'🇧🇷',
+    '阿甲':'🇦🇷','智利甲':'🇨🇱','墨超':'🇲🇽','中超':'🇨🇳','中甲':'🇨🇳',
+    '爱超':'🇮🇪','爱甲':'🇮🇪','澳超':'🇦🇺',
+};
+
+function getTeamIcon(teamName,leagueName){
+    // 国家队 → 国旗
+    for(const[name,code]of Object.entries(COUNTRY_MAP)){
+        if(teamName.includes(name))return`<img src="${FLAG_CDN}/${code}.png" alt="${name}" style="width:18px;height:13px;border-radius:2px;object-fit:cover;vertical-align:middle">`;
+    }
+    // 联赛图标
+    for(const[name,icon]of Object.entries(LEAGUE_ICON)){
+        if(leagueName&&leagueName.includes(name))return icon;
+    }
+    return'⚽';
+}
 let HQ_FILTER='all';
 let curGame=200,curData=null,myChart=null,retryTimer=null;
 const $=id=>document.getElementById(id);
@@ -354,9 +409,9 @@ function cardHTML(m){
     return `<div class="card" data-id="${m.match_no}">
         <div class="card-hd"><span class="league">${m.league||'-'}</span><span class="badge ${bc}">${m.status||'-'}</span></div>
         <div class="teams">
-            <div class="team"><span class="tn">${m.host_team||'主队'}</span><span class="tl">主队</span></div>
+            <div class="team"><span class="tn">${getTeamIcon(m.host_team,m.league)} ${m.host_team||'主队'}</span><span class="tl">主队</span></div>
             <div class="vs-col"><span class="vs">VS</span><span class="hq">${hq}</span></div>
-            <div class="team"><span class="tn">${m.guest_team||'客队'}</span><span class="tl">客队</span></div>
+            <div class="team"><span class="tn">${getTeamIcon(m.guest_team,m.league)} ${m.guest_team||'客队'}</span><span class="tl">客队</span></div>
         </div>
         <div class="sp-row">${sps}</div>
         <div class="card-ft">场次 ${m.match_no} · ${m.match_time||'-'}</div>
@@ -367,8 +422,8 @@ async function openModal(m){
     const pairs=spObjToPairs(m.sp);
     $('mLeague').textContent=m.league||'-';
     $('mTitle').textContent='场次 '+m.match_no;
-    $('mHome').textContent=m.host_team||'主队';
-    $('mAway').textContent=m.guest_team||'客队';
+    $('mHome').innerHTML=getTeamIcon(m.host_team,m.league)+' '+m.host_team;
+    $('mAway').innerHTML=getTeamIcon(m.guest_team,m.league)+' '+m.guest_team;
     $('mScore').textContent=m.score||'VS';
     $('mHandicap').textContent=m.handicap&&m.handicap!=='0'?'让球: '+m.handicap:'非让球';
     $('mTime').textContent=m.match_time||'-';
