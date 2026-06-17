@@ -217,14 +217,22 @@ function getTeamIcon(teamName,leagueName){
 
 function findCrest(teamName){
     if(!teamName)return null;
-    // 精确匹配
+    // 1. 直接匹配
     if(crestMap[teamName])return crestMap[teamName];
-    // 中文→英文映射
+    // 2. 中文→英文→匹配
     const en=CN_TO_EN[teamName];
-    if(en&&crestMap[en])return crestMap[en];
-    // 模糊匹配
+    if(en){
+        if(crestMap[en])return crestMap[en];
+        // 英文名+FC匹配
+        for(const key of Object.keys(crestMap)){
+            if(key.startsWith(en))return crestMap[key];
+        }
+    }
+    // 3. 模糊匹配（crest key 包含 teamName 或反过来）
+    const lower=teamName.toLowerCase();
     for(const[key,val]of Object.entries(crestMap)){
-        if(teamName.includes(key)||key.includes(teamName))return val;
+        const kl=key.toLowerCase();
+        if(kl===lower||kl.startsWith(lower)||lower.startsWith(kl))return val;
     }
     return null;
 }
@@ -232,7 +240,7 @@ function findCrest(teamName){
 // 中文队名 → 英文队名（football-data.org）
 const CN_TO_EN={
     '阿森纳':'Arsenal','曼彻斯特城':'Manchester City','曼城':'Manchester City',
-    '利物浦':'Liverpool','曼联':'Manchester United','切尔西':'Chelsea',
+    '利物浦':'Liverpool','曼联':'Man United','切尔西':'Chelsea',
     '托特纳姆热刺':'Tottenham Hotspur','热刺':'Tottenham Hotspur',
     '纽卡斯尔联':'Newcastle','纽卡':'Newcastle','西汉姆联':'West Ham United',
     '布莱顿':'Brighton','阿斯顿维拉':'Aston Villa','水晶宫':'Crystal Palace',
@@ -259,7 +267,7 @@ const CN_TO_EN={
     '斯图加特':'Stuttgart','霍芬海姆':'TSG Hoffenheim','美因茨':'FSV Mainz',
     '门兴':'Borussia Monchengladbach','奥格斯堡':'Augsburg','不莱梅':'Werder Bremen',
     '科隆':'FC Cologne','海登海姆':'Heidenheim','波鸿':'Bochum','达姆施塔特':'Darmstadt',
-    '巴黎圣日耳曼':'Paris Saint-Germain','巴黎':'Paris Saint-Germain','马赛':'Olympique Marseille',
+    '巴黎圣日耳曼':'Paris Saint-Germain FC','巴黎':'Paris Saint-Germain FC','马赛':'Olympique Marseille',
     '里昂':'Olympique Lyonnais','摩纳哥':'AS Monaco','里尔':'LOSC Lille',
     '尼斯':'OGC Nice','雷恩':'Stade Rennais','朗斯':'RC Lens',
     '兰斯':'Stade de Reims','蒙彼利埃':'Montpellier','南特':'FC Nantes',
