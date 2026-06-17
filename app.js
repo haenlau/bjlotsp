@@ -1,7 +1,24 @@
 // ==================== 配置 ====================
 const CONFIG = {
-    // API基础地址 - 部署后修改为你的服务器地址
+    // API地址优先级：
+    // 1. 如果配置了Worker代理地址，使用Worker（推荐，解决HTTPS/HTTP混合内容问题）
+    // 2. 否则直接访问后端服务器
+    //
+    // 部署Worker后，把下面的 WORKER_URL 改成你的Worker地址
+    // 例如: 'https://bjlotsp-api.your-subdomain.workers.dev'
+    WORKER_URL: '',  // Worker代理地址，留空则直连后端
+    
+    // 后端API地址（直连模式，仅限HTTP页面使用）
     API_BASE: 'http://115.190.60.121:8899',
+    
+    // 自动选择API地址
+    get apiBase() {
+        // 如果当前页面是HTTPS且配置了Worker，使用Worker
+        if (location.protocol === 'https:' && this.WORKER_URL) {
+            return this.WORKER_URL;
+        }
+        return this.API_BASE;
+    },
     
     // 更新间隔（毫秒）
     UPDATE_INTERVAL: 60000,
@@ -121,8 +138,8 @@ async function loadData() {
     try {
         // 并行请求
         const [spResponse, statsResponse] = await Promise.all([
-            fetch(`${CONFIG.API_BASE}/api/sp/latest?game_id=${currentGameId}`),
-            fetch(`${CONFIG.API_BASE}/api/stats`)
+            fetch(`${CONFIG.apiBase}/api/sp/latest?game_id=${currentGameId}`),
+            fetch(`${CONFIG.apiBase}/api/stats`)
         ]);
         
         const spData = await spResponse.json();
@@ -288,7 +305,7 @@ async function loadSpHistory(match) {
         const drawNo = match.draw_no;
         
         const response = await fetch(
-            `${CONFIG.API_BASE}/api/sp/history?game_id=${currentGameId}&draw_no=${drawNo}&match_no=${match.match_no}&hours=48`
+            `${CONFIG.apiBase}/api/sp/history?game_id=${currentGameId}&draw_no=${drawNo}&match_no=${match.match_no}&hours=48`
         );
         const data = await response.json();
         
