@@ -70,7 +70,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-bg.on{display:flex;animation:fadeIn .3s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal-bg.on body{overflow:hidden}
+body.modal-open{overflow:hidden;position:fixed;width:100%}
 .modal{background:var(--card);border-radius:var(--r4);width:100%;max-width:680px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh4);animation:slideUp .3s;overflow:hidden}
 @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 .modal-hd{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--g100);flex-shrink:0;background:var(--card);z-index:10}
@@ -376,6 +376,7 @@ async function openModal(m){
     $('mSp').innerHTML=pairs.map(p=>`<div class="sp-gi"><span class="sgl">${p.label}</span><span class="sgv">${p.value>0?p.value.toFixed(2):'-'}</span></div>`).join('');
     $('modal').classList.add('on');
     document.body.style.overflow='hidden';
+    document.body.classList.add('modal-open');
     try{
         const r=await fetchRetry(`${API}/api/sp/history?game_id=${curGame}&match_no=${m.match_no}&hours=48`);
         const d=await r.json();
@@ -401,7 +402,7 @@ function renderChart(hist){
     myChart=new Chart($('chart'),{type:'line',data:{labels:ts,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true}},tooltip:{backgroundColor:'rgba(15,23,42,.9)',padding:10,cornerRadius:8}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,font:{size:10}}},y:{grid:{color:'rgba(0,0,0,.05)'}}}}});
 }
 function emptyChart(){if(myChart)myChart.destroy();myChart=new Chart($('chart'),{type:'line',data:{labels:['暂无'],datasets:[{data:[0],borderColor:'#cbd5e1',backgroundColor:'rgba(203,213,225,.1)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});}
-function closeModal(){$('modal').classList.remove('on');document.body.style.overflow='';if(myChart){myChart.destroy();myChart=null;}}
+function closeModal(){$('modal').classList.remove('on');document.body.style.overflow='';document.body.classList.remove('modal-open');if(myChart){myChart.destroy();myChart=null;}}
 </script>
 </body>
 </html>
