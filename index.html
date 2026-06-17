@@ -122,6 +122,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
     <div class="filters">
         <span class="section-t" id="secTitle">胜平负 · 即时SP值</span>
         <div style="flex:1"></div>
+        <select class="sel" id="dateFilter"><option value="all">全部日期</option></select>
         <select class="sel" id="hqFilter"><option value="all">是否让球</option><option value="rq">仅让球</option><option value="frq">非让球</option></select>
         <select class="sel" id="leagueFilter"><option value="all">全部赛事</option></select>
         <select class="sel" id="statusFilter"><option value="all">全部状态</option><option value="销售中">销售中</option><option value="已开奖">已开奖</option><option value="已停售">已停售</option></select>
@@ -178,6 +179,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     $('statusFilter').onchange=renderCards;
     $('leagueFilter').onchange=renderCards;
     $('hqFilter').onchange=()=>{HQ_FILTER=$('hqFilter').value;renderCards()};
+    $('dateFilter').onchange=renderCards;
     $('mClose').onclick=closeModal;
     $('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};
     document.onkeydown=e=>{if(e.key==='Escape')closeModal()};
@@ -216,6 +218,7 @@ async function loadAll(){
             $('drawNo').textContent=sp.draw_no||'-';
             $('matchCount').textContent=sp.count||0;
             buildLeagueFilter(sp.data||[]);
+            buildDateFilter(sp.data||[]);
             renderCards();
         }
         if(stats.code===0){
@@ -240,6 +243,22 @@ function buildLeagueFilter(records){
     sel.value=cur||'all';
 }
 
+function buildDateFilter(records){
+    const dates=[...new Set(records.map(m=>{
+        if(!m.match_time)return'';
+        const d=m.match_time.match(/(\d{4}-\d{2}-\d{2})/);
+        return d?d[1]:'';
+    }).filter(Boolean))].sort();
+    const sel=$('dateFilter');
+    const cur=sel.value;
+    sel.innerHTML='<option value="all">全部日期</option>'+dates.map(d=>{
+        const dt=new Date(d+'T00:00:00');
+        const weekday=['周日','周一','周二','周三','周四','周五','周六'][dt.getDay()];
+        return`<option value="${d}">${d.substring(5)} ${weekday}</option>`;
+    }).join('');
+    sel.value=cur||'all';
+}
+
 function renderCards(){
     if(!curData)return;
     let data=curData.data||[];
@@ -247,6 +266,8 @@ function renderCards(){
     const lf=$('leagueFilter').value;
     if(sf!=='all')data=data.filter(m=>m.status===sf);
     if(lf!=='all')data=data.filter(m=>m.league===lf);
+    const df=$('dateFilter').value;
+    if(df!=='all')data=data.filter(m=>m.match_time&&m.match_time.startsWith(df));
     if(HQ_FILTER==='rq')data=data.filter(m=>m.handicap&&m.handicap!=='0');
     if(HQ_FILTER==='frq')data=data.filter(m=>!m.handicap||m.handicap==='0');
     // 销售中优先排序
