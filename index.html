@@ -7,563 +7,322 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-/* ==================== CSS Variables ==================== */
-:root {
-    --primary-900: #0a1628;
-    --primary-800: #0f2240;
-    --primary-700: #152d52;
-    --primary-600: #1a3a6b;
-    --primary-500: #1e4785;
-    --accent-gold: #f0b429;
-    --accent-gold-light: #f7d070;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --gray-50: #f8fafc;
-    --gray-100: #f1f5f9;
-    --gray-200: #e2e8f0;
-    --gray-300: #cbd5e1;
-    --gray-400: #94a3b8;
-    --gray-500: #64748b;
-    --gray-600: #475569;
-    --gray-700: #334155;
-    --gray-800: #1e293b;
-    --gray-900: #0f172a;
-    --bg-main: #f0f4f8;
-    --bg-card: #ffffff;
-    --bg-glass: rgba(255, 255, 255, 0.85);
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 24px;
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+:root{--p900:#0a1628;--p800:#0f2240;--p700:#152d52;--p600:#1a3a6b;--p500:#1e4785;--gold:#f0b429;--gold-l:#f7d070;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;--g400:#94a3b8;--g500:#64748b;--g600:#475569;--g700:#334155;--g800:#1e293b;--g900:#0f172a;--bg:#f0f4f8;--card:#fff;--glass:rgba(255,255,255,.85);--sh1:0 1px 2px rgba(0,0,0,.05);--sh2:0 4px 6px -1px rgba(0,0,0,.1);--sh3:0 10px 15px -3px rgba(0,0,0,.1);--sh4:0 20px 25px -5px rgba(0,0,0,.1);--r1:8px;--r2:12px;--r3:16px;--r4:24px;--tr:all .3s cubic-bezier(.4,0,.2,1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--g800);line-height:1.6;min-height:100vh}
+.wrap{max-width:1400px;margin:0 auto;padding:0 20px}
+.bg-fix{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.bg-fix .c{position:absolute;border-radius:50%;background:linear-gradient(135deg,var(--p500),var(--gold));opacity:.03}
+.bg-fix .c1{width:600px;height:600px;top:-200px;right:-100px}
+.bg-fix .c2{width:400px;height:400px;bottom:-100px;left:-50px}
+
+/* Header */
+.hdr{position:sticky;top:0;z-index:100;background:var(--glass);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.2);box-shadow:var(--sh1)}
+.hdr-in{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
+.logo{display:flex;align-items:center;gap:12px}
+.logo i{font-size:32px}
+.logo h1{font-size:22px;font-weight:700;background:linear-gradient(135deg,var(--p700),var(--p500));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo small{font-size:11px;color:var(--g500);display:block}
+.hdr-r{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g600);background:var(--card);padding:6px 14px;border-radius:var(--r4);box-shadow:var(--sh1)}
+.dot{width:8px;height:8px;background:var(--ok);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Info Bar */
+.info-bar{display:flex;gap:12px;margin:16px 0;flex-wrap:wrap}
+.info-tag{background:var(--card);padding:8px 16px;border-radius:var(--r2);font-size:13px;color:var(--g600);box-shadow:var(--sh1);display:flex;align-items:center;gap:6px}
+.info-tag b{color:var(--p700);font-weight:600}
+
+/* Tabs */
+.tabs{background:var(--card);border-radius:var(--r3);padding:6px;box-shadow:var(--sh2);margin:16px 0;overflow-x:auto}
+.tabs-in{display:flex;gap:6px;min-width:max-content}
+.tab{display:flex;align-items:center;gap:6px;padding:10px 16px;border:none;background:0;border-radius:var(--r2);cursor:pointer;font-size:13px;font-weight:500;color:var(--g600);transition:var(--tr);white-space:nowrap}
+.tab:hover{background:var(--g100)}
+.tab.on{background:linear-gradient(135deg,var(--p700),var(--p500));color:#fff;box-shadow:0 4px 12px rgba(30,71,133,.3)}
+.tab i{font-size:15px}
+
+/* Filters */
+.filters{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;align-items:center}
+.sel{padding:8px 14px;border:1px solid var(--g200);border-radius:var(--r1);background:var(--card);font-size:13px;color:var(--g700);cursor:pointer}
+.sel:focus{outline:none;border-color:var(--p500)}
+.section-t{font-size:18px;font-weight:600;color:var(--g800)}
+
+/* Cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin:16px 0 40px}
+.card{background:var(--card);border-radius:var(--r3);padding:18px;box-shadow:var(--sh2);transition:var(--tr);cursor:pointer;border:1px solid transparent;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--p500),var(--gold));opacity:0;transition:var(--tr)}
+.card:hover{transform:translateY(-3px);box-shadow:var(--sh4);border-color:var(--gold-l)}
+.card:hover::before{opacity:1}
+.card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.league{font-size:11px;font-weight:600;color:var(--p600);background:rgba(30,71,133,.08);padding:3px 8px;border-radius:var(--r4)}
+.badge{font-size:11px;padding:3px 8px;border-radius:var(--r4);font-weight:500}
+.badge-ok{background:rgba(16,185,129,.1);color:var(--ok)}
+.badge-off{background:rgba(100,116,139,.1);color:var(--g500)}
+.badge-stop{background:rgba(239,68,68,.1);color:var(--err)}
+.teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.team{flex:1;text-align:center}
+.team .tn{font-size:14px;font-weight:600;color:var(--g800);display:block}
+.team .tl{font-size:10px;color:var(--g400)}
+.vs-col{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 10px}
+.vs-col .vs{font-size:11px;color:var(--g400);font-weight:600}
+.vs-col .hq{font-size:10px;color:var(--p600);background:rgba(30,71,133,.08);padding:2px 6px;border-radius:var(--r1)}
+.sp-row{display:flex;gap:6px;justify-content:center}
+.sp-it{flex:1;text-align:center;padding:8px 6px;background:var(--g50);border-radius:var(--r1);transition:var(--tr)}
+.sp-it:hover{background:rgba(30,71,133,.05)}
+.sp-it .sl{font-size:10px;color:var(--g500);display:block;margin-bottom:2px}
+.sp-it .sv{font-size:16px;font-weight:700;color:var(--p700)}
+.card-ft{text-align:center;font-size:11px;color:var(--g500);margin-top:10px;padding-top:10px;border-top:1px solid var(--g100)}
+
+/* Status */
+.load{text-align:center;padding:60px 0;color:var(--g500)}
+.spin{width:36px;height:36px;border:3px solid var(--g200);border-top-color:var(--p500);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:60px 0;color:var(--g500)}
+.empty i{font-size:40px;display:block;margin-bottom:12px}
+.err-info{font-size:12px;color:var(--g400);margin-top:8px;line-height:1.8}
+
+/* Modal */
+.modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.on{display:flex;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--card);border-radius:var(--r4);width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:var(--sh4);animation:slideUp .3s}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-hd{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--g100);position:sticky;top:0;background:var(--card);z-index:10}
+.modal-hd h3{font-size:16px;font-weight:600}
+.modal-hd .league-tag{font-size:11px;color:var(--p600);font-weight:600}
+.close-btn{width:32px;height:32px;border:none;background:var(--g100);border-radius:50%;font-size:18px;color:var(--g600);cursor:pointer}
+.close-btn:hover{background:var(--g200)}
+.modal-bd{padding:20px}
+.m-info{background:linear-gradient(135deg,var(--p800),var(--p600));border-radius:var(--r3);padding:20px;color:#fff;margin-bottom:16px}
+.m-teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.m-team{text-align:center;flex:1}
+.m-team .mt{font-size:17px;font-weight:600;display:block}
+.m-team .ml{font-size:11px;opacity:.7}
+.m-center{text-align:center;padding:0 16px}
+.m-score{font-size:26px;font-weight:700;color:var(--gold)}
+.m-hq{font-size:11px;opacity:.8;margin-top:3px}
+.m-meta{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid rgba(255,255,255,.2);font-size:12px;opacity:.9}
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(75px,1fr));gap:10px}
+.sp-gi{background:var(--g50);border-radius:var(--r2);padding:10px 6px;text-align:center;box-shadow:var(--sh1);transition:var(--tr)}
+.sp-gi:hover{transform:scale(1.05)}
+.sp-gi .sgl{font-size:10px;color:var(--g500);display:block;margin-bottom:4px}
+.sp-gi .sgv{font-size:18px;font-weight:700;color:var(--p700)}
+.chart-box{background:var(--g50);border-radius:var(--r3);padding:16px;margin-top:16px}
+.chart-box h4{font-size:14px;font-weight:600;color:var(--g700);margin-bottom:12px}
+.chart-wrap{position:relative;height:220px}
+.sub-title{font-size:14px;font-weight:600;color:var(--g700);margin-bottom:12px}
+
+/* Footer */
+.ftr{background:var(--p900);color:rgba(255,255,255,.7);text-align:center;padding:20px 0;margin-top:auto}
+.ftr p{font-size:12px;margin-bottom:3px}
+
+@media(max-width:768px){
+.hdr-in{flex-direction:column;gap:8px}
+.info-bar{gap:8px}
+.tab{padding:8px 12px;font-size:12px}
+.tab span{display:none}
+.grid{grid-template-columns:1fr}
+.modal{margin:10px;max-height:95vh}
+.m-teams{flex-direction:column;gap:12px}
+.m-center{padding:8px 0}
 }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: var(--bg-main);
-    color: var(--gray-800);
-    line-height: 1.6;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
-
-.container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
-
-/* ==================== Background ==================== */
-.bg-decoration { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
-.circle { position: absolute; border-radius: 50%; background: linear-gradient(135deg, var(--primary-500), var(--accent-gold)); opacity: 0.03; }
-.circle-1 { width: 600px; height: 600px; top: -200px; right: -100px; animation: float 20s ease-in-out infinite; }
-.circle-2 { width: 400px; height: 400px; bottom: -100px; left: -50px; animation: float 15s ease-in-out infinite reverse; }
-.circle-3 { width: 300px; height: 300px; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: float 25s ease-in-out infinite; }
-@keyframes float { 0%,100%{transform:translateY(0) rotate(0deg)} 33%{transform:translateY(-20px) rotate(5deg)} 66%{transform:translateY(10px) rotate(-3deg)} }
-
-/* ==================== Header ==================== */
-.header {
-    position: sticky; top: 0; z-index: 100;
-    background: var(--bg-glass);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-    box-shadow: var(--shadow-sm);
-}
-.header-content { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; }
-.logo { display: flex; align-items: center; gap: 12px; }
-.logo-icon { font-size: 36px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
-.logo-text h1 {
-    font-size: 24px; font-weight: 700;
-    background: linear-gradient(135deg, var(--primary-700), var(--primary-500));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    line-height: 1.2;
-}
-.logo-text .subtitle { font-size: 12px; color: var(--gray-500); letter-spacing: 1px; }
-.header-status {
-    display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-600);
-    background: var(--bg-card); padding: 8px 16px; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);
-}
-.status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.2)} }
-
-/* ==================== Stats ==================== */
-.stats-section { margin: 24px 0; }
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-.stat-card {
-    background: var(--bg-card); border-radius: var(--radius-lg); padding: 20px;
-    display: flex; align-items: center; gap: 16px;
-    box-shadow: var(--shadow-md); transition: var(--transition); border: 1px solid transparent;
-}
-.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--accent-gold-light); }
-.stat-icon {
-    font-size: 32px; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, var(--primary-700), var(--primary-500));
-    border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(30,71,133,0.3);
-}
-.stat-info { display: flex; flex-direction: column; }
-.stat-value { font-size: 28px; font-weight: 700; color: var(--gray-900); line-height: 1.2; }
-.stat-label { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
-
-/* ==================== Tabs ==================== */
-.tabs-section { margin: 24px 0; }
-.tabs-container {
-    background: var(--bg-card); border-radius: var(--radius-lg); padding: 8px;
-    box-shadow: var(--shadow-md); overflow-x: auto; -webkit-overflow-scrolling: touch;
-}
-.tabs-wrapper { display: flex; gap: 8px; min-width: max-content; }
-.tab {
-    display: flex; align-items: center; gap: 8px; padding: 12px 20px; border: none;
-    background: transparent; border-radius: var(--radius-md); cursor: pointer;
-    font-size: 14px; font-weight: 500; color: var(--gray-600); transition: var(--transition); white-space: nowrap;
-}
-.tab:hover { background: var(--gray-100); color: var(--gray-800); }
-.tab.active {
-    background: linear-gradient(135deg, var(--primary-700), var(--primary-500));
-    color: white; box-shadow: 0 4px 12px rgba(30,71,133,0.3);
-}
-.tab-icon { font-size: 16px; }
-
-/* ==================== Matches ==================== */
-.matches-section { margin: 24px 0 48px; }
-.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.section-header h2 { font-size: 20px; font-weight: 600; color: var(--gray-800); }
-.filter-select {
-    padding: 8px 16px; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);
-    background: var(--bg-card); font-size: 14px; color: var(--gray-700); cursor: pointer; transition: var(--transition);
-}
-.filter-select:hover { border-color: var(--primary-500); }
-.filter-select:focus { outline: none; border-color: var(--primary-500); box-shadow: 0 0 0 3px rgba(30,71,133,0.1); }
-
-.matches-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
-
-.match-card {
-    background: var(--bg-card); border-radius: var(--radius-lg); padding: 20px;
-    box-shadow: var(--shadow-md); transition: var(--transition); cursor: pointer;
-    border: 1px solid transparent; position: relative; overflow: hidden;
-}
-.match-card::before {
-    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-    background: linear-gradient(180deg, var(--primary-500), var(--accent-gold));
-    opacity: 0; transition: var(--transition);
-}
-.match-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-xl); border-color: var(--accent-gold-light); }
-.match-card:hover::before { opacity: 1; }
-
-.match-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.match-league {
-    font-size: 12px; font-weight: 600; color: var(--primary-600);
-    background: rgba(30,71,133,0.08); padding: 4px 10px; border-radius: var(--radius-xl);
-}
-.match-status { font-size: 12px; padding: 4px 10px; border-radius: var(--radius-xl); font-weight: 500; }
-.status-selling { background: rgba(16,185,129,0.1); color: var(--success); }
-.status-drawn { background: rgba(100,116,139,0.1); color: var(--gray-500); }
-.status-stopped { background: rgba(239,68,68,0.1); color: var(--danger); }
-
-.match-teams-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.team-col { flex: 1; text-align: center; }
-.team-col .t-name { font-size: 15px; font-weight: 600; color: var(--gray-800); display: block; margin-bottom: 4px; }
-.team-col .t-label { font-size: 11px; color: var(--gray-400); }
-.match-vs-col { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 12px; }
-.vs-text { font-size: 12px; color: var(--gray-400); font-weight: 600; }
-.handicap-tag { font-size: 11px; color: var(--primary-600); background: rgba(30,71,133,0.08); padding: 2px 8px; border-radius: var(--radius-sm); }
-
-.match-sp { display: flex; gap: 8px; justify-content: center; }
-.sp-item { flex: 1; text-align: center; padding: 10px 8px; background: var(--gray-50); border-radius: var(--radius-sm); transition: var(--transition); }
-.sp-item:hover { background: rgba(30,71,133,0.05); }
-.sp-label { font-size: 11px; color: var(--gray-500); display: block; margin-bottom: 4px; }
-.sp-value { font-size: 18px; font-weight: 700; color: var(--primary-700); }
-
-.match-time { text-align: center; font-size: 12px; color: var(--gray-500); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--gray-100); }
-
-/* ==================== Loading & Empty ==================== */
-.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; color: var(--gray-500); gap: 16px; }
-.spinner { width: 40px; height: 40px; border: 3px solid var(--gray-200); border-top-color: var(--primary-500); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.empty-state { text-align: center; padding: 60px 0; color: var(--gray-500); }
-.empty-icon { font-size: 48px; display: block; margin-bottom: 16px; }
-
-/* ==================== Modal ==================== */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-    z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px;
-}
-.modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from{opacity:0} to{opacity:1} }
-
-.modal {
-    background: var(--bg-card); border-radius: var(--radius-xl); width: 100%; max-width: 700px;
-    max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-xl); animation: slideUp 0.3s ease;
-}
-@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
-
-.modal-header {
-    display: flex; justify-content: space-between; align-items: center; padding: 24px;
-    border-bottom: 1px solid var(--gray-100); position: sticky; top: 0;
-    background: var(--bg-card); z-index: 10; border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-}
-.modal-title-group { display: flex; flex-direction: column; gap: 4px; }
-.modal-league { font-size: 12px; color: var(--primary-600); font-weight: 600; }
-.modal-title { font-size: 18px; font-weight: 600; color: var(--gray-800); }
-.modal-close {
-    width: 36px; height: 36px; border: none; background: var(--gray-100); border-radius: 50%;
-    font-size: 20px; color: var(--gray-600); cursor: pointer; transition: var(--transition);
-    display: flex; align-items: center; justify-content: center;
-}
-.modal-close:hover { background: var(--gray-200); color: var(--gray-800); }
-.modal-body { padding: 24px; }
-
-.match-info-card {
-    background: linear-gradient(135deg, var(--primary-800), var(--primary-600));
-    border-radius: var(--radius-lg); padding: 24px; color: white; margin-bottom: 20px;
-}
-.modal-teams { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.modal-team { text-align: center; flex: 1; }
-.modal-team .mt-name { font-size: 18px; font-weight: 600; display: block; margin-bottom: 4px; }
-.modal-team .mt-label { font-size: 12px; opacity: 0.7; }
-.modal-center { text-align: center; padding: 0 20px; }
-.modal-score { font-size: 28px; font-weight: 700; color: var(--accent-gold); }
-.modal-handicap { font-size: 12px; opacity: 0.8; margin-top: 4px; }
-.modal-meta { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 13px; opacity: 0.9; }
-.status-badge { padding: 4px 12px; border-radius: var(--radius-xl); font-size: 12px; font-weight: 500; background: rgba(255,255,255,0.2); }
-
-.sp-values-card { background: var(--gray-50); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
-.sp-values-card h4 { font-size: 15px; font-weight: 600; color: var(--gray-700); margin-bottom: 16px; }
-.sp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 12px; }
-.sp-grid-item {
-    background: var(--bg-card); border-radius: var(--radius-md); padding: 12px 8px;
-    text-align: center; box-shadow: var(--shadow-sm); transition: var(--transition);
-}
-.sp-grid-item:hover { transform: scale(1.05); box-shadow: var(--shadow-md); }
-.sp-grid-label { font-size: 11px; color: var(--gray-500); display: block; margin-bottom: 6px; }
-.sp-grid-value { font-size: 20px; font-weight: 700; color: var(--primary-700); }
-
-.chart-card { background: var(--gray-50); border-radius: var(--radius-lg); padding: 20px; }
-.chart-card h4 { font-size: 15px; font-weight: 600; color: var(--gray-700); margin-bottom: 16px; }
-.chart-container { position: relative; height: 250px; }
-
-/* ==================== Footer ==================== */
-.footer { background: var(--primary-900); color: rgba(255,255,255,0.7); text-align: center; padding: 24px 0; margin-top: auto; }
-.footer p { font-size: 13px; margin-bottom: 4px; }
-.footer-note { font-size: 11px; opacity: 0.6; }
-
-/* ==================== Responsive ==================== */
-@media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 768px) {
-    .container { padding: 0 16px; }
-    .header-content { flex-direction: column; gap: 12px; }
-    .logo-text h1 { font-size: 20px; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .stat-card { padding: 16px; }
-    .stat-icon { width: 44px; height: 44px; font-size: 24px; }
-    .stat-value { font-size: 22px; }
-    .tab { padding: 10px 14px; font-size: 13px; }
-    .tab-name { display: none; }
-    .tab-icon { font-size: 18px; }
-    .matches-grid { grid-template-columns: 1fr; }
-    .section-header { flex-direction: column; gap: 12px; align-items: flex-start; }
-    .filter-select { width: 100%; }
-    .modal { margin: 12px; max-height: 95vh; }
-    .modal-teams { flex-direction: column; gap: 16px; }
-    .modal-center { padding: 12px 0; }
-}
-@media (max-width: 480px) {
-    .stat-card { padding: 12px; }
-    .stat-value { font-size: 20px; }
-    .match-sp { flex-wrap: wrap; }
-    .sp-item { min-width: calc(33% - 8px); }
-}
-
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--gray-100); }
-::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
     </style>
 </head>
 <body>
-    <div class="bg-decoration">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
+<div class="bg-fix"><div class="c c1"></div><div class="c c2"></div></div>
+
+<header class="hdr"><div class="wrap"><div class="hdr-in">
+    <div class="logo"><i>⚽</i><div><h1>北京单场</h1><small>数据中心 · 实时SP值</small></div></div>
+    <div class="hdr-r"><div class="dot"></div><span id="updTime">加载中...</span></div>
+</div></div></header>
+
+<main class="wrap">
+    <div class="info-bar" id="infoBar">
+        <div class="info-tag">📊 奖期: <b id="drawNo">-</b></div>
+        <div class="info-tag">📅 数据时间: <b id="scrapedAt">-</b></div>
+        <div class="info-tag">🔗 API: <b id="apiStatus">-</b></div>
     </div>
 
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <span class="logo-icon">⚽</span>
-                    <div class="logo-text">
-                        <h1>北京单场</h1>
-                        <span class="subtitle">数据中心 · 实时SP值</span>
-                    </div>
-                </div>
-                <div class="header-status">
-                    <div class="status-dot"></div>
-                    <span id="updateTime">加载中...</span>
-                </div>
-            </div>
-        </div>
-    </header>
+    <div class="tabs"><div class="tabs-in" id="tabs"></div></div>
 
-    <main class="main">
-        <div class="container">
-            <section class="stats-section">
-                <div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:12px 20px;margin-bottom:16px;font-size:13px;color:var(--gray-600);box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:8px;">
-                    <span>🔗</span>
-                    <span>API状态: <a id="apiTestLink" href="https://api.dawn.us.ci:8899/health" target="_blank" style="color:var(--primary-500);text-decoration:underline;">点击测试连接</a></span>
-                    <span id="apiStatus" style="margin-left:auto;font-weight:600;">-</span>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-info"><span class="stat-value" id="totalMatches">-</span><span class="stat-label">总场次</span></div></div>
-                    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-info"><span class="stat-value" id="totalRecords">-</span><span class="stat-label">数据记录</span></div></div>
-                    <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-info"><span class="stat-value">60s</span><span class="stat-label">更新频率</span></div></div>
-                    <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-info"><span class="stat-value">7</span><span class="stat-label">玩法类型</span></div></div>
-                </div>
-            </section>
-
-            <section class="tabs-section">
-                <div class="tabs-container">
-                    <div class="tabs-wrapper" id="tabsWrapper">
-                        <button class="tab active" data-game="200"><span class="tab-icon">⚽</span><span class="tab-name">胜平负</span></button>
-                        <button class="tab" data-game="210"><span class="tab-icon">📈</span><span class="tab-name">上下盘</span></button>
-                        <button class="tab" data-game="230"><span class="tab-icon">🥅</span><span class="tab-name">总进球</span></button>
-                        <button class="tab" data-game="240"><span class="tab-icon">⏱️</span><span class="tab-name">半全场</span></button>
-                        <button class="tab" data-game="250"><span class="tab-icon">🎯</span><span class="tab-name">单场比分</span></button>
-                        <button class="tab" data-game="260"><span class="tab-icon">📝</span><span class="tab-name">下半场比分</span></button>
-                        <button class="tab" data-game="270"><span class="tab-icon">🏅</span><span class="tab-name">胜负过关</span></button>
-                    </div>
-                </div>
-            </section>
-
-            <section class="matches-section">
-                <div class="section-header">
-                    <h2 id="sectionTitle">胜平负 · 即时SP值</h2>
-                    <div class="filter-group">
-                        <select id="statusFilter" class="filter-select">
-                            <option value="all">全部状态</option>
-                            <option value="销售中">销售中</option>
-                            <option value="已开奖">已开奖</option>
-                            <option value="已停售">已停售</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="matches-grid" id="matchesGrid"></div>
-                <div class="loading" id="loading"><div class="spinner"></div><span>加载数据中...</span></div>
-                <div class="empty-state" id="emptyState" style="display:none;"><span class="empty-icon">📭</span><p>暂无数据</p></div>
-            </section>
-        </div>
-    </main>
-
-    <div class="modal-overlay" id="detailModal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title-group"><span class="modal-league" id="modalLeague">-</span><h3 class="modal-title" id="modalTitle">比赛详情</h3></div>
-                <button class="modal-close" id="modalClose">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="match-info-card">
-                    <div class="modal-teams">
-                        <div class="modal-team"><span class="mt-name" id="modalHomeTeam">主队</span><span class="mt-label">主队</span></div>
-                        <div class="modal-center"><div class="modal-score" id="modalScore">VS</div><div class="modal-handicap" id="modalHandicap">让球: 0</div></div>
-                        <div class="modal-team"><span class="mt-name" id="modalAwayTeam">客队</span><span class="mt-label">客队</span></div>
-                    </div>
-                    <div class="modal-meta"><span id="modalTime">-</span><span id="modalStatus" class="status-badge">-</span></div>
-                </div>
-                <div class="sp-values-card"><h4>当前SP值</h4><div class="sp-grid" id="modalSpValues"></div></div>
-                <div class="chart-card"><h4>SP值变化趋势</h4><div class="chart-container"><canvas id="spChart"></canvas></div></div>
-            </div>
-        </div>
+    <div class="filters">
+        <span class="section-t" id="secTitle">胜平负 · 即时SP值</span>
+        <div style="flex:1"></div>
+        <select class="sel" id="leagueFilter"><option value="all">全部赛事</option></select>
+        <select class="sel" id="statusFilter"><option value="all">全部状态</option><option value="销售中">销售中</option><option value="已开奖">已开奖</option><option value="已停售">已停售</option></select>
     </div>
 
-    <footer class="footer">
-        <div class="container">
-            <p>数据来源：北京体彩官方网站 · 仅供参考</p>
-            <p class="footer-note">即时SP值随购彩者投注结果浮动，实际奖金以开奖SP值为准</p>
+    <div class="grid" id="grid"></div>
+    <div class="load" id="loading"><div class="spin"></div><span>加载中...</span></div>
+    <div class="empty" id="empty" style="display:none"><i>📭</i><p id="emptyMsg">暂无数据</p></div>
+</main>
+
+<div class="modal-bg" id="modal">
+    <div class="modal">
+        <div class="modal-hd"><div><div class="league-tag" id="mLeague"></div><h3 id="mTitle"></h3></div><button class="close-btn" id="mClose">&times;</button></div>
+        <div class="modal-bd">
+            <div class="m-info">
+                <div class="m-teams">
+                    <div class="m-team"><span class="mt" id="mHome"></span><span class="ml">主队</span></div>
+                    <div class="m-center"><div class="m-score" id="mScore">VS</div><div class="m-hq" id="mHandicap"></div></div>
+                    <div class="m-team"><span class="mt" id="mAway"></span><span class="ml">客队</span></div>
+                </div>
+                <div class="m-meta"><span id="mTime"></span><span id="mStatus"></span></div>
+            </div>
+            <div class="sub-title">当前SP值</div>
+            <div class="sp-grid" id="mSp"></div>
+            <div class="chart-box"><h4>SP值变化趋势</h4><div class="chart-wrap"><canvas id="chart"></canvas></div></div>
         </div>
-    </footer>
+    </div>
+</div>
+
+<footer class="ftr"><div class="wrap"><p>数据来源：北京体彩官方网站 · 仅供参考</p><p style="font-size:10px;opacity:.5">即时SP值随投注结果浮动，实际奖金以开奖SP值为准</p></div></footer>
 
 <script>
-// ==================== 配置 ====================
-const CONFIG = {
-    API_BASE: 'https://api.dawn.us.ci:8899',
-    UPDATE_INTERVAL: 60000,
-    GAME_NAMES: { 200:'胜平负', 210:'上下盘单双数', 230:'总进球数', 240:'半全场胜平负', 250:'单场比分', 260:'下半场比分', 270:'胜负过关' },
-    SP_LABELS: {
-        200:['胜','平','负'],
-        210:['上盘','下盘','单','双'],
-        230:['0球','1球','2球','3球','4球','5球','6球','7+球'],
-        240:['胜胜','胜平','胜负','平胜','平平','平负','负胜','负平','负负'],
-        250:[], 260:[], 270:['胜','负']
-    }
-};
+const API='https://api.dawn.us.ci:8899';
+const GAMES={200:{name:'胜平负',icon:'⚽',cols:['胜','平','负']},210:{name:'上下盘',icon:'📈',cols:['上盘','下盘','单','双']},230:{name:'总进球',icon:'🥅',cols:['0球','1球','2球','3球','4球','5球','6球','7+球']},240:{name:'半全场',icon:'⏱️',cols:['胜胜','胜平','胜负','平胜','平平','平负','负胜','负平','负负']},250:{name:'单场比分',icon:'🎯',cols:[]},260:{name:'下半场比分',icon:'📝',cols:[]},270:{name:'胜负过关',icon:'🏅',cols:['胜','负']}};
+let curGame=200,allData={},myChart=null;
+const $=id=>document.getElementById(id);
+const parseSp=d=>typeof d==='string'?JSON.parse(d||'[]'):(d||[]);
 
-let currentGameId = 200;
-let matchesData = [];
-let spChart = null;
-
-const $ = id => document.getElementById(id);
-const parseSp = d => typeof d === 'string' ? JSON.parse(d||'[]') : (d||[]);
-
-// ==================== 初始化 ====================
-document.addEventListener('DOMContentLoaded', () => {
-    initTabs();
-    $('statusFilter').addEventListener('change', renderMatches);
-    $('modalClose').addEventListener('click', closeModal);
-    $('detailModal').addEventListener('click', e => { if (e.target === $('detailModal')) closeModal(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-    loadData();
-    setInterval(loadData, CONFIG.UPDATE_INTERVAL);
+// Init
+document.addEventListener('DOMContentLoaded',()=>{
+    renderTabs();
+    $('statusFilter').onchange=renderCards;
+    $('leagueFilter').onchange=renderCards;
+    $('mClose').onclick=closeModal;
+    $('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};
+    document.onkeydown=e=>{if(e.key==='Escape')closeModal()};
+    loadAll();
+    setInterval(loadAll,30000);
 });
 
-function initTabs() {
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            currentGameId = parseInt(tab.dataset.game);
-            $('sectionTitle').textContent = `${CONFIG.GAME_NAMES[currentGameId]} · 即时SP值`;
-            loadData();
-        });
+function renderTabs(){
+    $('tabs').innerHTML=Object.entries(GAMES).map(([id,g])=>
+        `<button class="tab${id==curGame?' on':''}" data-g="${id}"><i>${g.icon}</i><span>${g.name}</span></button>`
+    ).join('');
+    $('tabs').querySelectorAll('.tab').forEach(t=>{
+        t.onclick=()=>{
+            $('tabs').querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+            t.classList.add('on');
+            curGame=+t.dataset.g;
+            $('secTitle').textContent=GAMES[curGame].name+' · 即时SP值';
+            loadAll();
+        };
     });
 }
 
-// ==================== 数据加载 ====================
-async function loadData() {
-    $('loading').style.display = 'flex';
-    $('emptyState').style.display = 'none';
-    try {
-        // 先测试API连通性
-        const healthResp = await fetch(`${CONFIG.API_BASE}/health`, { signal: AbortSignal.timeout(5000) });
-        const healthData = await healthResp.json();
-        $('apiStatus').textContent = healthData.status === 'ok' ? '✅ 已连接' : '❌ 异常';
-        $('apiStatus').style.color = healthData.status === 'ok' ? 'var(--success)' : 'var(--danger)';
-
-        const [spResp, statsResp] = await Promise.all([
-            fetch(`${CONFIG.API_BASE}/api/sp/latest?game_id=${currentGameId}`),
-            fetch(`${CONFIG.API_BASE}/api/stats`)
+async function loadAll(){
+    $('loading').style.display='block';
+    $('empty').style.display='none';
+    try{
+        const[spR,statsR]=await Promise.all([
+            fetch(`${API}/api/sp/latest?game_id=${curGame}`),
+            fetch(`${API}/api/stats`)
         ]);
-        const spData = await spResp.json();
-        const statsData = await statsResp.json();
-        if (spData.code === 0) { matchesData = spData.data || []; renderMatches(); }
-        if (statsData.code === 0) updateStats(statsData.data);
-        $('updateTime').textContent = `最后更新: ${new Date().toLocaleTimeString()}`;
-    } catch (err) {
-        console.error('加载失败:', err);
-        $('loading').style.display = 'none';
-        $('apiStatus').textContent = '❌ 连接失败';
-        $('apiStatus').style.color = 'var(--danger)';
-        const debugInfo = `API地址: ${CONFIG.API_BASE}<br>错误类型: ${err.name}<br>错误信息: ${err.message}`;
-        $('matchesGrid').innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>数据加载失败</p><p style="font-size:12px;color:#94a3b8;margin-top:8px;line-height:1.8">${debugInfo}</p><p style="font-size:12px;color:#94a3b8;margin-top:8px;">请检查：<br>1. 能否直接访问 <a href="${CONFIG.API_BASE}/health" target="_blank" style="color:var(--primary-500)">API地址</a><br>2. 浏览器F12 Console是否有报错</p></div>`;
+        const sp=await spR.json();
+        const stats=await statsR.json();
+
+        if(sp.code===0){
+            allData=sp;
+            buildLeagueFilter(sp.data||[]);
+            renderCards();
+        }
+        if(stats.code===0){
+            $('scrapedAt').textContent=stats.scraped_at?new Date(stats.scraped_at).toLocaleString():'-';
+        }
+        $('drawNo').textContent=sp.draw_no||'-';
+        $('apiStatus').textContent='✅ 正常';
+        $('apiStatus').style.color='var(--ok)';
+        $('updTime').textContent='更新: '+new Date().toLocaleTimeString();
+    }catch(e){
+        console.error(e);
+        $('loading').style.display='none';
+        $('apiStatus').textContent='❌ 异常';
+        $('apiStatus').style.color='var(--err)';
+        $('grid').innerHTML=`<div class="empty"><i>⚠️</i><p>加载失败</p><div class="err-info">API: ${API}<br>${e.message}</div></div>`;
     }
 }
 
-function updateStats(stats) {
-    let total = 0;
-    Object.values(stats).forEach(g => { total += (g.sp_records||0) + (g.result_records||0); });
-    $('totalMatches').textContent = matchesData.length;
-    $('totalRecords').textContent = total >= 10000 ? (total/10000).toFixed(1)+'万' : total;
+function buildLeagueFilter(records){
+    const leagues=[...new Set(records.map(m=>m.league).filter(Boolean))].sort();
+    const sel=$('leagueFilter');
+    const cur=sel.value;
+    sel.innerHTML='<option value="all">全部赛事</option>'+leagues.map(l=>`<option value="${l}">${l}</option>`).join('');
+    sel.value=cur||'all';
 }
 
-// ==================== 渲染比赛列表 ====================
-function renderMatches() {
-    const filter = $('statusFilter').value;
-    let data = filter === 'all' ? matchesData : matchesData.filter(m => m.status === filter);
-    if (!data.length) { $('matchesGrid').innerHTML = ''; $('emptyState').style.display = 'block'; $('loading').style.display = 'none'; return; }
-    $('emptyState').style.display = 'none'; $('loading').style.display = 'none';
-    $('matchesGrid').innerHTML = data.map(m => cardHTML(m)).join('');
-    document.querySelectorAll('.match-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const m = matchesData.find(d => d.match_no == card.dataset.id);
-            if (m) openModal(m);
-        });
+function renderCards(){
+    let data=allData.data||[];
+    const sf=$('statusFilter').value;
+    const lf=$('leagueFilter').value;
+    if(sf!=='all')data=data.filter(m=>m.status===sf);
+    if(lf!=='all')data=data.filter(m=>m.league===lf);
+    $('loading').style.display='none';
+    if(!data.length){$('grid').innerHTML='';$('empty').style.display='block';$('emptyMsg').textContent=sf!=='all'||lf!=='all'?'没有符合条件的比赛':'暂无数据';return}
+    $('empty').style.display='none';
+    $('grid').innerHTML=data.map(m=>cardHTML(m)).join('');
+    $('grid').querySelectorAll('.card').forEach(c=>{
+        c.onclick=()=>{
+            const m=(allData.data||[]).find(d=>d.match_no==c.dataset.id);
+            if(m)openModal(m);
+        };
     });
 }
 
-function cardHTML(m) {
-    const sp = parseSp(m.sp_data);
-    const labels = CONFIG.SP_LABELS[currentGameId]||[];
-    const sc = m.status==='销售中'?'status-selling':m.status==='已开奖'?'status-drawn':'status-stopped';
-    const sps = (currentGameId===250||currentGameId===260)
-        ? sp.slice(0,4).map((v,i)=>`<div class="sp-item"><span class="sp-label">${v>0?'选项'+(i+1):'-'}</span><span class="sp-value">${v>0?v.toFixed(2):'-'}</span></div>`).join('')
-        : sp.map((v,i)=>`<div class="sp-item"><span class="sp-label">${labels[i]||'选项'+(i+1)}</span><span class="sp-value">${v>0?v.toFixed(2):'-'}</span></div>`).join('');
-    return `<div class="match-card" data-id="${m.match_no}">
-        <div class="match-card-header"><span class="match-league">${m.league||'-'}</span><span class="match-status ${sc}">${m.status||'-'}</span></div>
-        <div class="match-teams-row">
-            <div class="team-col"><span class="t-name">${m.host_team||'主队'}</span><span class="t-label">主队</span></div>
-            <div class="match-vs-col"><span class="vs-text">VS</span><span class="handicap-tag">让 ${m.handicap||'0'}</span></div>
-            <div class="team-col"><span class="t-name">${m.guest_team||'客队'}</span><span class="t-label">客队</span></div>
+function cardHTML(m){
+    const sp=parseSp(m.sp_data);
+    const cols=GAMES[curGame].cols||[];
+    const bc=m.status==='销售中'?'badge-ok':m.status==='已开奖'?'badge-off':'badge-stop';
+    const isBF=curGame===250||curGame===260;
+    const sps=isBF
+        ?sp.slice(0,4).map((v,i)=>`<div class="sp-it"><span class="sl">${v>0?'选项'+(i+1):'-'}</span><span class="sv">${v>0?v.toFixed(2):'-'}</span></div>`).join('')
+        :sp.map((v,i)=>`<div class="sp-it"><span class="sl">${cols[i]||'选项'+(i+1)}</span><span class="sv">${v>0?v.toFixed(2):'-'}</span></div>`).join('');
+    const hq=m.handicap&&m.handicap!=='0'?`让 ${m.handicap}`:'非让球';
+    return `<div class="card" data-id="${m.match_no}">
+        <div class="card-hd"><span class="league">${m.league||'-'}</span><span class="badge ${bc}">${m.status||'-'}</span></div>
+        <div class="teams">
+            <div class="team"><span class="tn">${m.host_team||'主队'}</span><span class="tl">主队</span></div>
+            <div class="vs-col"><span class="vs">VS</span><span class="hq">${hq}</span></div>
+            <div class="team"><span class="tn">${m.guest_team||'客队'}</span><span class="tl">客队</span></div>
         </div>
-        <div class="match-sp">${sps}</div>
-        <div class="match-time">场次 ${m.match_no} · ${m.match_time||'-'}</div>
+        <div class="sp-row">${sps}</div>
+        <div class="card-ft">场次 ${m.match_no} · ${m.match_time||'-'}</div>
     </div>`;
 }
 
-// ==================== 详情弹窗 ====================
-async function openModal(m) {
-    const sp = parseSp(m.sp_data);
-    const labels = CONFIG.SP_LABELS[currentGameId]||[];
-    $('modalLeague').textContent = m.league||'-';
-    $('modalTitle').textContent = `场次 ${m.match_no}`;
-    $('modalHomeTeam').textContent = m.host_team||'主队';
-    $('modalAwayTeam').textContent = m.guest_team||'客队';
-    $('modalScore').textContent = m.score||'VS';
-    $('modalHandicap').textContent = `让球: ${m.handicap||'0'}`;
-    $('modalTime').textContent = m.match_time||'-';
-    $('modalStatus').textContent = m.status||'-';
-    $('modalSpValues').innerHTML = sp.map((v,i)=>`<div class="sp-grid-item"><span class="sp-grid-label">${labels[i]||'选项'+(i+1)}</span><span class="sp-grid-value">${v>0?v.toFixed(2):'-'}</span></div>`).join('');
-    $('detailModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-    await loadSpHistory(m);
+async function openModal(m){
+    const sp=parseSp(m.sp_data);
+    const cols=GAMES[curGame].cols||[];
+    $('mLeague').textContent=m.league||'-';
+    $('mTitle').textContent='场次 '+m.match_no;
+    $('mHome').textContent=m.host_team||'主队';
+    $('mAway').textContent=m.guest_team||'客队';
+    $('mScore').textContent=m.score||'VS';
+    $('mHandicap').textContent=m.handicap&&m.handicap!=='0'?'让球: '+m.handicap:'非让球';
+    $('mTime').textContent=m.match_time||'-';
+    $('mStatus').textContent=m.status||'-';
+    $('mSp').innerHTML=sp.map((v,i)=>`<div class="sp-gi"><span class="sgl">${cols[i]||'选项'+(i+1)}</span><span class="sgv">${v>0?v.toFixed(2):'-'}</span></div>`).join('');
+    $('modal').classList.add('on');
+    document.body.style.overflow='hidden';
+    try{
+        const r=await fetch(`${API}/api/sp/history?game_id=${curGame}&draw_no=${allData.draw_no}&match_no=${m.match_no}&hours=48`);
+        const d=await r.json();
+        if(d.code===0&&d.data.length)renderChart(d.data);else emptyChart();
+    }catch{emptyChart();}
 }
 
-async function loadSpHistory(m) {
-    try {
-        const resp = await fetch(`${CONFIG.API_BASE}/api/sp/history?game_id=${currentGameId}&draw_no=${m.draw_no}&match_no=${m.match_no}&hours=48`);
-        const data = await resp.json();
-        if (data.code===0 && data.data.length) renderChart(data.data); else renderEmptyChart();
-    } catch { renderEmptyChart(); }
+function renderChart(hist){
+    const cols=GAMES[curGame].cols||[];
+    const ts=hist.map(d=>new Date(d.scraped_at).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}));
+    const arr=hist.map(d=>parseSp(d.sp_data));
+    const vi=[];if(arr.length)arr[0].forEach((v,i)=>{if(v>0)vi.push(i)});
+    const colors=['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1'];
+    const ds=vi.map((idx,i)=>({label:cols[idx]||'选项'+(idx+1),data:arr.map(sp=>sp[idx]||null),borderColor:colors[i%colors.length],backgroundColor:colors[i%colors.length]+'20',tension:.4,fill:true,pointRadius:2,pointHoverRadius:5}));
+    if(myChart)myChart.destroy();
+    myChart=new Chart($('chart'),{type:'line',data:{labels:ts,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true}},tooltip:{backgroundColor:'rgba(15,23,42,.9)',padding:10,cornerRadius:8}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,font:{size:10}}},y:{grid:{color:'rgba(0,0,0,.05)'}}}}});
 }
-
-function renderChart(history) {
-    const labels = CONFIG.SP_LABELS[currentGameId]||[];
-    const times = history.map(d => new Date(d.scraped_at).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}));
-    const spArr = history.map(d => parseSp(d.sp_data));
-    const validIdx = [];
-    if (spArr.length) spArr[0].forEach((v,i) => { if (v>0) validIdx.push(i); });
-    const colors = ['rgb(59,130,246)','rgb(239,68,68)','rgb(16,185,129)','rgb(245,158,11)','rgb(139,92,246)','rgb(236,72,153)','rgb(20,184,166)','rgb(249,115,22)','rgb(99,102,241)'];
-    const datasets = validIdx.map((idx,i) => ({
-        label: labels[idx]||`选项${idx+1}`, data: spArr.map(sp=>sp[idx]||null),
-        borderColor: colors[i%colors.length], backgroundColor: colors[i%colors.length]+'20',
-        tension: 0.4, fill: true, pointRadius: 3, pointHoverRadius: 6
-    }));
-    if (spChart) spChart.destroy();
-    spChart = new Chart($('spChart'), {
-        type: 'line', data: { labels: times, datasets },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: { legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } }, tooltip: { backgroundColor: 'rgba(15,23,42,0.9)', padding: 12, cornerRadius: 8 } },
-            scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } }, y: { grid: { color: 'rgba(0,0,0,0.05)' } } }
-        }
-    });
-}
-
-function renderEmptyChart() {
-    if (spChart) spChart.destroy();
-    spChart = new Chart($('spChart'), {
-        type: 'line', data: { labels: ['暂无数据'], datasets: [{ label: 'SP值', data: [0], borderColor: 'rgb(203,213,225)', backgroundColor: 'rgba(203,213,225,0.1)' }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-}
-
-function closeModal() {
-    $('detailModal').classList.remove('active');
-    document.body.style.overflow = '';
-    if (spChart) { spChart.destroy(); spChart = null; }
-}
+function emptyChart(){if(myChart)myChart.destroy();myChart=new Chart($('chart'),{type:'line',data:{labels:['暂无'],datasets:[{data:[0],borderColor:'#cbd5e1',backgroundColor:'rgba(203,213,225,.1)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});}
+function closeModal(){$('modal').classList.remove('on');document.body.style.overflow='';if(myChart){myChart.destroy();myChart=null;}}
 </script>
 </body>
 </html>
