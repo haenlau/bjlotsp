@@ -98,7 +98,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .sub-title{font-size:14px;font-weight:600;color:var(--g700);margin-bottom:12px}
 .ftr{background:var(--p900);color:rgba(255,255,255,.7);text-align:center;padding:20px 0;margin-top:auto}
 .ftr p{font-size:12px;margin-bottom:3px}
-@media(max-width:768px){.hdr-in{flex-direction:column;gap:8px}.tab{padding:8px 12px;font-size:12px}.tab span{display:none}.grid{grid-template-columns:1fr}.modal{margin:10px;max-height:95vh}.m-teams{flex-direction:column;gap:12px}.m-center{padding:8px 0}.info-bar{gap:6px}.info-tag{padding:6px 10px;font-size:12px}.filters{flex-wrap:wrap;gap:8px}.section-t{flex-basis:100%;font-size:15px;margin-bottom:2px}.filters .sel{flex:1 1 0%;min-width:0;padding:10px 4px;font-size:13px}}
+@media(max-width:768px){.hdr-in{flex-direction:column;gap:8px}.tab{padding:8px 12px;font-size:12px}.tab span{display:none}.grid{grid-template-columns:1fr}.modal{margin:10px;max-height:95vh}.m-teams{flex-direction:column;gap:12px}.m-center{padding:8px 0}.info-bar{gap:6px}.info-tag{padding:6px 10px;font-size:12px}.filters{flex-wrap:wrap;gap:8px}.spacer{display:none!important}.section-t{flex-basis:100%;font-size:15px;margin-bottom:2px}.filters .sel{flex:1 1 0%;min-width:0;padding:10px 4px;font-size:13px}}
 @media(max-width:380px){.info-tag{padding:5px 8px;font-size:11px}.info-tag b{font-size:12px}}
 .hq-btn{font-size:12px;padding:6px 12px;cursor:pointer;border:1px solid var(--g200);background:var(--card);border-radius:var(--r1);color:var(--g600);transition:var(--tr)}
 .hq-btn.on{background:var(--p700);color:#fff;border-color:var(--p700)}
@@ -121,7 +121,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
     <div class="tabs"><div class="tabs-in" id="tabs"></div></div>
     <div class="filters">
         <span class="section-t" id="secTitle">胜平负 · 即时SP值</span>
-        <div style="flex:1"></div>
+        <div class="spacer" style="flex:1"></div>
         <select class="sel" id="dateFilter"><option value="all">全部日期</option></select>
         <select class="sel" id="hqFilter"><option value="all">是否让球</option><option value="rq">仅让球</option><option value="frq">非让球</option></select>
         <select class="sel" id="leagueFilter"><option value="all">全部赛事</option></select>
