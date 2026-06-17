@@ -405,6 +405,7 @@ let matchesData = [];
 let spChart = null;
 
 const $ = id => document.getElementById(id);
+const parseSp = d => typeof d === 'string' ? JSON.parse(d||'[]') : (d||[]);
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -482,7 +483,7 @@ function renderMatches() {
 }
 
 function cardHTML(m) {
-    const sp = JSON.parse(m.sp_data||'[]');
+    const sp = parseSp(m.sp_data);
     const labels = CONFIG.SP_LABELS[currentGameId]||[];
     const sc = m.status==='销售中'?'status-selling':m.status==='已开奖'?'status-drawn':'status-stopped';
     const sps = (currentGameId===250||currentGameId===260)
@@ -502,7 +503,7 @@ function cardHTML(m) {
 
 // ==================== 详情弹窗 ====================
 async function openModal(m) {
-    const sp = JSON.parse(m.sp_data||'[]');
+    const sp = parseSp(m.sp_data);
     const labels = CONFIG.SP_LABELS[currentGameId]||[];
     $('modalLeague').textContent = m.league||'-';
     $('modalTitle').textContent = `场次 ${m.match_no}`;
@@ -529,7 +530,7 @@ async function loadSpHistory(m) {
 function renderChart(history) {
     const labels = CONFIG.SP_LABELS[currentGameId]||[];
     const times = history.map(d => new Date(d.scraped_at).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}));
-    const spArr = history.map(d => JSON.parse(d.sp_data||'[]'));
+    const spArr = history.map(d => parseSp(d.sp_data));
     const validIdx = [];
     if (spArr.length) spArr[0].forEach((v,i) => { if (v>0) validIdx.push(i); });
     const colors = ['rgb(59,130,246)','rgb(239,68,68)','rgb(16,185,129)','rgb(245,158,11)','rgb(139,92,246)','rgb(236,72,153)','rgb(20,184,166)','rgb(249,115,22)','rgb(99,102,241)'];
