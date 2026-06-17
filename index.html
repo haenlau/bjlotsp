@@ -311,6 +311,11 @@ body {
     <main class="main">
         <div class="container">
             <section class="stats-section">
+                <div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:12px 20px;margin-bottom:16px;font-size:13px;color:var(--gray-600);box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:8px;">
+                    <span>🔗</span>
+                    <span>API状态: <a id="apiTestLink" href="https://api.dawn.us.ci:8899/health" target="_blank" style="color:var(--primary-500);text-decoration:underline;">点击测试连接</a></span>
+                    <span id="apiStatus" style="margin-left:auto;font-weight:600;">-</span>
+                </div>
                 <div class="stats-grid">
                     <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-info"><span class="stat-value" id="totalMatches">-</span><span class="stat-label">总场次</span></div></div>
                     <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-info"><span class="stat-value" id="totalRecords">-</span><span class="stat-label">数据记录</span></div></div>
@@ -429,6 +434,12 @@ async function loadData() {
     $('loading').style.display = 'flex';
     $('emptyState').style.display = 'none';
     try {
+        // 先测试API连通性
+        const healthResp = await fetch(`${CONFIG.apiBase}/health`, { signal: AbortSignal.timeout(5000) });
+        const healthData = await healthResp.json();
+        $('apiStatus').textContent = healthData.status === 'ok' ? '✅ 已连接' : '❌ 异常';
+        $('apiStatus').style.color = healthData.status === 'ok' ? 'var(--success)' : 'var(--danger)';
+
         const [spResp, statsResp] = await Promise.all([
             fetch(`${CONFIG.API_BASE}/api/sp/latest?game_id=${currentGameId}`),
             fetch(`${CONFIG.API_BASE}/api/stats`)
@@ -441,7 +452,10 @@ async function loadData() {
     } catch (err) {
         console.error('加载失败:', err);
         $('loading').style.display = 'none';
-        $('matchesGrid').innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>数据加载失败，请检查网络连接</p></div>';
+        $('apiStatus').textContent = '❌ 连接失败';
+        $('apiStatus').style.color = 'var(--danger)';
+        const debugInfo = `API地址: ${CONFIG.apiBase}<br>错误类型: ${err.name}<br>错误信息: ${err.message}`;
+        $('matchesGrid').innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>数据加载失败</p><p style="font-size:12px;color:#94a3b8;margin-top:8px;line-height:1.8">${debugInfo}</p><p style="font-size:12px;color:#94a3b8;margin-top:8px;">请检查：<br>1. 能否直接访问 <a href="${CONFIG.apiBase}/health" target="_blank" style="color:var(--primary-500)">API地址</a><br>2. 浏览器F12 Console是否有报错</p></div>`;
     }
 }
 
