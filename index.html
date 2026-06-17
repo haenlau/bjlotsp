@@ -102,16 +102,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .hq-btn{font-size:12px;padding:6px 12px;cursor:pointer;border:1px solid var(--g200);background:var(--card);border-radius:var(--r1);color:var(--g600);transition:var(--tr)}
 .hq-btn.on{background:var(--p700);color:#fff;border-color:var(--p700)}
 .hq-btn:hover{border-color:var(--p500)}
-.drop{position:relative;user-select:none}
-.drop-btn{padding:8px 14px;border:1px solid var(--g200);border-radius:var(--r1);background:var(--card);font-size:13px;color:var(--g700);cursor:pointer;display:flex;align-items:center;gap:6px;transition:var(--tr)}
-.drop-btn:hover{border-color:var(--p500)}
-.drop-btn .arrow{font-size:10px;transition:transform .2s}
-.drop.open .arrow{transform:rotate(180deg)}
-.drop-menu{position:absolute;top:calc(100% + 4px);right:0;background:var(--card);border:1px solid var(--g200);border-radius:var(--r2);box-shadow:var(--sh3);z-index:50;min-width:120px;display:none;overflow:hidden}
-.drop.open .drop-menu{display:block}
-.drop-item{padding:10px 14px;font-size:13px;color:var(--g700);cursor:pointer;transition:var(--tr)}
-.drop-item:hover{background:var(--g100)}
-.drop-item.on{background:var(--p700);color:#fff}
+
     </style>
 </head>
 <body>
@@ -131,14 +122,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
     <div class="filters">
         <span class="section-t" id="secTitle">胜平负 · 即时SP值</span>
         <div style="flex:1"></div>
-        <div class="drop" id="hqDrop">
-            <div class="drop-btn" id="hqBtn">是否让球 <span class="arrow">▼</span></div>
-            <div class="drop-menu">
-                <div class="drop-item on" data-hq="all">全部</div>
-                <div class="drop-item" data-hq="rq">仅让球</div>
-                <div class="drop-item" data-hq="frq">非让球</div>
-            </div>
-        </div>
+        <select class="sel" id="hqFilter"><option value="all">是否让球</option><option value="rq">仅让球</option><option value="frq">非让球</option></select>
         <select class="sel" id="leagueFilter"><option value="all">全部赛事</option></select>
         <select class="sel" id="statusFilter"><option value="all">全部状态</option><option value="销售中">销售中</option><option value="已开奖">已开奖</option><option value="已停售">已停售</option></select>
     </div>
@@ -164,7 +148,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
         </div>
     </div>
 </div>
-<footer class="ftr"><div class="wrap"><p style="font-size:11px;opacity:.8">免责声明：本域名非官方所有，与北京市体育彩票管理中心无任何关联。</p><p style="font-size:11px;opacity:.8;margin-top:4px">本站数据均采集自公开网页，仅供技术学习与个人研究使用，不构成任何投注建议，不得用于商业用途。</p><p style="font-size:11px;opacity:.8;margin-top:4px">因使用本站数据产生的任何后果，本站不承担任何责任。实际业务请访问 <a href="https://www.bjlot.com.cn" target="_blank" style="color:var(--gold-l);text-decoration:underline">北京体彩官方网站</a>。</p></div></footer>
+<footer class="ftr"><div class="wrap"><p style="font-size:11px;opacity:.8">本域名与北京体彩中心无任何关联，仅为个人技术学习与研究测试站点。本站内容不作为任何业务办理依据。</p><p style="font-size:11px;opacity:.8;margin-top:4px">如需查询真实数据或办理业务，请务必访问 <a href="https://www.bjlot.com.cn" target="_blank" style="color:var(--gold-l);text-decoration:underline">北京体彩官方网站</a>。</p></div></footer>
 <script>
 const API='https://api.dawn.us.ci:8899';
 let HQ_FILTER='all'; // all | rq | frq
@@ -193,21 +177,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     renderTabs();
     $('statusFilter').onchange=renderCards;
     $('leagueFilter').onchange=renderCards;
-    // 让球下拉菜单
-    const hqDrop=$('hqDrop');
-    $('hqBtn').onclick=e=>{e.stopPropagation();hqDrop.classList.toggle('open')};
-    document.querySelectorAll('.drop-item').forEach(b=>{
-        b.onclick=()=>{
-            document.querySelectorAll('.drop-item').forEach(x=>x.classList.remove('on'));
-            b.classList.add('on');
-            HQ_FILTER=b.dataset.hq;
-            const label=b.textContent;
-            $('hqBtn').innerHTML=label+' <span class="arrow">▼</span>';
-            hqDrop.classList.remove('open');
-            renderCards();
-        };
-    });
-    document.addEventListener('click',()=>hqDrop.classList.remove('open'));
+    $('hqFilter').onchange=()=>{HQ_FILTER=$('hqFilter').value;renderCards()};
     $('mClose').onclick=closeModal;
     $('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};
     document.onkeydown=e=>{if(e.key==='Escape')closeModal()};
