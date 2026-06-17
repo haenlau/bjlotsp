@@ -34,7 +34,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .tab.on{background:linear-gradient(135deg,var(--p700),var(--p500));color:#fff;box-shadow:0 4px 12px rgba(30,71,133,.3)}
 .tab i{font-size:15px}
 .filters{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;align-items:center}
-.sel{padding:8px 14px;border:1px solid var(--g200);border-radius:var(--r1);background:var(--card);font-size:13px;color:var(--g700);cursor:pointer}
+.sel{padding:8px 14px;border:1px solid var(--g200);border-radius:var(--r1);background:var(--card);font-size:13px;color:var(--g700);cursor:pointer;flex-shrink:0}
 .sel:focus{outline:none;border-color:var(--p500)}
 .section-t{font-size:18px;font-weight:600;color:var(--g800)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin:16px 0 40px}
@@ -98,7 +98,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .sub-title{font-size:14px;font-weight:600;color:var(--g700);margin-bottom:12px}
 .ftr{background:var(--p900);color:rgba(255,255,255,.7);text-align:center;padding:20px 0;margin-top:auto}
 .ftr p{font-size:12px;margin-bottom:3px}
-@media(max-width:768px){.hdr-in{flex-direction:column;gap:8px}.tab{padding:8px 12px;font-size:12px}.tab span{display:none}.grid{grid-template-columns:1fr}.modal{margin:10px;max-height:95vh}.m-teams{flex-direction:column;gap:12px}.m-center{padding:8px 0}.filters{gap:6px}}
+@media(max-width:768px){.hdr-in{flex-direction:column;gap:8px}.tab{padding:8px 12px;font-size:12px}.tab span{display:none}.grid{grid-template-columns:1fr}.modal{margin:10px;max-height:95vh}.m-teams{flex-direction:column;gap:12px}.m-center{padding:8px 0}.info-bar{gap:6px}.info-tag{padding:6px 10px;font-size:12px}.section-t{width:100%;font-size:15px}.filters{gap:6px}.sel{flex:1;min-width:0;padding:7px 6px;font-size:12px;text-align:center}}
 .hq-btn{font-size:12px;padding:6px 12px;cursor:pointer;border:1px solid var(--g200);background:var(--card);border-radius:var(--r1);color:var(--g600);transition:var(--tr)}
 .hq-btn.on{background:var(--p700);color:#fff;border-color:var(--p700)}
 .hq-btn:hover{border-color:var(--p500)}
@@ -112,11 +112,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
     <div class="hdr-r"><div class="dot"></div><span id="updTime">加载中...</span></div>
 </div></div></header>
 <main class="wrap">
-    <div class="info-bar" id="infoBar">
+    <div class="info-bar">
         <div class="info-tag">📊 奖期: <b id="drawNo">-</b></div>
         <div class="info-tag">🏟️ 场次: <b id="matchCount">-</b></div>
         <div class="info-tag">🟢 销售中: <b id="sellingCount">-</b></div>
-        <div class="info-tag">🔗 API: <b id="apiStatus">-</b></div>
     </div>
     <div class="tabs"><div class="tabs-in" id="tabs"></div></div>
     <div class="filters">
@@ -224,14 +223,10 @@ async function loadAll(){
                 $('sellingCount').textContent=g.selling_count||0;
             }
         }
-        $('apiStatus').textContent='✅ 正常';
-        $('apiStatus').style.color='var(--ok)';
         $('updTime').textContent='更新: '+new Date().toLocaleTimeString();
     }catch(e){
         console.error(e);
         $('loading').style.display='none';
-        $('apiStatus').textContent='❌ 异常';
-        $('apiStatus').style.color='var(--err)';
         $('grid').innerHTML=`<div class="empty"><i>⚠️</i><p>加载失败</p><div class="err-info">API: ${API}<br>${e.message}</div></div>`;
     }
 }
