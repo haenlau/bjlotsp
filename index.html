@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北京单场数据中心</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="bg-decoration">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+
+    <!-- 头部 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">⚽</span>
+                    <div class="logo-text">
+                        <h1>北京单场</h1>
+                        <span class="subtitle">数据中心 · 实时SP值</span>
+                    </div>
+                </div>
+                <div class="header-status">
+                    <div class="status-dot"></div>
+                    <span id="updateTime">加载中...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="main">
+        <div class="container">
+            <!-- 统计卡片 -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalMatches">-</span>
+                            <span class="stat-label">总场次</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalRecords">-</span>
+                            <span class="stat-label">数据记录</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-info">
+                            <span class="stat-value">60s</span>
+                            <span class="stat-label">更新频率</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-info">
+                            <span class="stat-value">7</span>
+                            <span class="stat-label">玩法类型</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 玩法选择标签 -->
+            <section class="tabs-section">
+                <div class="tabs-container">
+                    <div class="tabs-wrapper" id="tabsWrapper">
+                        <button class="tab active" data-game="200">
+                            <span class="tab-icon">⚽</span>
+                            <span class="tab-name">胜平负</span>
+                        </button>
+                        <button class="tab" data-game="210">
+                            <span class="tab-icon">📈</span>
+                            <span class="tab-name">上下盘</span>
+                        </button>
+                        <button class="tab" data-game="230">
+                            <span class="tab-icon">🥅</span>
+                            <span class="tab-name">总进球</span>
+                        </button>
+                        <button class="tab" data-game="240">
+                            <span class="tab-icon">⏱️</span>
+                            <span class="tab-name">半全场</span>
+                        </button>
+                        <button class="tab" data-game="250">
+                            <span class="tab-icon">🎯</span>
+                            <span class="tab-name">单场比分</span>
+                        </button>
+                        <button class="tab" data-game="260">
+                            <span class="tab-icon">📝</span>
+                            <span class="tab-name">下半场比分</span>
+                        </button>
+                        <button class="tab" data-game="270">
+                            <span class="tab-icon">🏅</span>
+                            <span class="tab-name">胜负过关</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 比赛列表 -->
+            <section class="matches-section">
+                <div class="section-header">
+                    <h2 id="sectionTitle">胜平负 · 即时SP值</h2>
+                    <div class="filter-group">
+                        <select id="statusFilter" class="filter-select">
+                            <option value="all">全部状态</option>
+                            <option value="销售中">销售中</option>
+                            <option value="已开奖">已开奖</option>
+                            <option value="已停售">已停售</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="matches-grid" id="matchesGrid">
+                    <!-- 比赛卡片将通过JS动态生成 -->
+                </div>
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <span>加载数据中...</span>
+                </div>
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <span class="empty-icon">📭</span>
+                    <p>暂无数据</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="modal-league" id="modalLeague">-</span>
+                    <h3 class="modal-title" id="modalTitle">比赛详情</h3>
+                </div>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="match-info-card">
+                    <div class="match-teams">
+                        <div class="team home">
+                            <span class="team-name" id="modalHomeTeam">主队</span>
+                            <span class="team-label">主队</span>
+                        </div>
+                        <div class="match-center">
+                            <div class="match-score" id="modalScore">VS</div>
+                            <div class="match-handicap" id="modalHandicap">让球: 0</div>
+                        </div>
+                        <div class="team away">
+                            <span class="team-name" id="modalAwayTeam">客队</span>
+                            <span class="team-label">客队</span>
+                        </div>
+                    </div>
+                    <div class="match-meta">
+                        <span id="modalTime">-</span>
+                        <span id="modalStatus" class="status-badge">-</span>
+                    </div>
+                </div>
+
+                <div class="sp-values-card">
+                    <h4>当前SP值</h4>
+                    <div class="sp-grid" id="modalSpValues">
+                        <!-- SP值将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h4>SP值变化趋势</h4>
+                    <div class="chart-container">
+                        <canvas id="spChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p>数据来源：北京体彩官方网站 · 仅供参考</p>
+            <p class="footer-note">即时SP值随购彩者投注结果浮动，实际奖金以开奖SP值为准</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
