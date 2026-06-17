@@ -185,33 +185,31 @@ const COUNTRY_MAP={
     '新西兰':'nz','洪都拉斯':'hn','哥斯达黎加':'cr',
 };
 
-// 联赛图标
-const LEAGUE_ICON={
-    '世界杯':'🌍','欧洲杯':'🇪🇺','亚洲杯':'🌏','美洲杯':'🌎','非洲杯':'🌍',
-    '欧冠杯':'⭐','欧罗巴联赛':'⭐','联赛':'⭐','洲际杯':'🏆','解放者杯':'🏆','南俱杯':'🏆',
-    '英超':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','西甲':'🇪🇸','意甲':'🇮🇹','德甲':'🇩🇪','法甲':'🇫🇷',
-    '葡超':'🇵🇹','荷甲':'🇳🇱','比甲':'🇧🇪','苏超':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','英冠':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-    '英甲':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','英乙':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','西乙':'🇪🇸','意乙':'🇮🇹','德乙':'🇩🇪',
-    '法乙':'🇫🇷','荷乙':'🇳🇱','葡甲':'🇵🇹','罗甲':'🇷🇴','土超':'🇹🇷','波兰甲':'🇵🇱',
-    '捷克甲':'🇨🇿','瑞士甲':'🇨🇭','瑞士超':'🇨🇭','丹超':'🇩🇰','丹甲':'🇩🇰',
-    '瑞典超':'🇸🇪','瑞典甲':'🇸🇪','挪威超':'🇳🇴','挪威甲':'🇳🇴','芬兰超':'🇫🇮','芬甲':'🇫🇮','芬超':'🇫🇮',
-    '冰岛超':'🇮🇸','奥甲':'🇦🇹','奥乙':'🇦🇹','希腊超':'🇬🇷','匈牙利':'🇭🇺',
-    '韩K':'🇰🇷','K联赛':'🇰🇷','J联赛':'🇯🇵','J1联赛':'🇯🇵','J2联赛':'🇯🇵',
-    '美职':'🇺🇸','美金杯':'🇺🇸','巴甲':'🇧🇷','巴西甲':'🇧🇷','巴西乙':'🇧🇷',
-    '阿甲':'🇦🇷','智利甲':'🇨🇱','墨超':'🇲🇽','中超':'🇨🇳','中甲':'🇨🇳',
-    '爱超':'🇮🇪','爱甲':'🇮🇪','澳超':'🇦🇺',
-};
+// 联赛图标（文字徽章，兼容性好）
+function leagueBadge(name){
+    if(!name)return'';
+    const colors={
+        '世界杯':'#1a5276','欧洲杯':'#2e86c1','亚洲杯':'#148f77','美洲杯':'#b9770e','非洲杯':'#6c3483',
+        '欧冠杯':'#1a237e','欧罗巴联赛':'#f57f17','洲际杯':'#880e4f','解放者杯':'#004d40','南俱杯':'#bf360c',
+        '英超':'#38003c','西甲':'#ee4540','意甲':'#024494','德甲':'#d20515','法甲':'#1e3a5f',
+        '葡超':'#006847','荷甲':'#ff6600','苏超':'#003078','英冠':'#e31837',
+        '世界杯2':'#1a5276','世界杯3':'#1a5276',
+    };
+    // 去掉数字后缀
+    const clean=name.replace(/\d+$/,'').trim();
+    const color=colors[name]||colors[clean]||'#475569';
+    const short=clean.length>4?clean.substring(0,4):clean;
+    return`<span style="background:${color};color:#fff;font-size:9px;padding:1px 4px;border-radius:3px;font-weight:600;white-space:nowrap;vertical-align:middle">${short}</span>`;
+}
 
 function getTeamIcon(teamName,leagueName){
-    // 国家队 → 国旗
+    // 国家队 → 国旗图片
     for(const[name,code]of Object.entries(COUNTRY_MAP)){
-        if(teamName.includes(name))return`<img src="${FLAG_CDN}/${code}.png" alt="${name}" style="width:18px;height:13px;border-radius:2px;object-fit:cover;vertical-align:middle">`;
+        if(teamName.includes(name))return`<img src="${FLAG_CDN}/${code}.png" alt="${name}" style="width:20px;height:14px;border-radius:2px;object-fit:cover;vertical-align:middle">`;
     }
-    // 联赛图标
-    for(const[name,icon]of Object.entries(LEAGUE_ICON)){
-        if(leagueName&&leagueName.includes(name))return icon;
-    }
-    return'⚽';
+    // 联赛 → 文字徽章
+    if(leagueName)return leagueBadge(leagueName);
+    return'';
 }
 let HQ_FILTER='all';
 let curGame=200,curData=null,myChart=null,retryTimer=null;
