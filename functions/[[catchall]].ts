@@ -1,6 +1,6 @@
 // Cloudflare Pages Function - 统一代理
 
-const API_ORIGIN = 'http://api.dawn.us.ci:8898';
+const API_ORIGIN = 'https://api.dawn.us.ci';
 
 export async function onRequest(context) {
     const url = new URL(context.request.url);
