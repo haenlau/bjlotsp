@@ -161,14 +161,27 @@ const $=id=>document.getElementById(id);
 function cacheSave(k,d){try{localStorage.setItem('bj_'+k,JSON.stringify({ts:Date.now(),data:d}))}catch{}}
 function cacheLoad(k,age){try{const r=localStorage.getItem('bj_'+k);if(!r)return null;const p=JSON.parse(r);if(age&&Date.now()-p.ts>age)return null;return p.data}catch{return null}}
 async function fetchRetry(url,t=5,d=3000){for(let i=0;i<t;i++){try{const c=new AbortController();const tm=setTimeout(()=>c.abort(),10000);const r=await fetch(url,{signal:c.signal});clearTimeout(tm);if(!r.ok)throw new Error('HTTP '+r.status);return r}catch(e){if(i===t-1)throw e;await new Promise(r=>setTimeout(r,d))}}}
-document.addEventListener('DOMContentLoaded',()=>{renderTabs();$('statusFilter').onchange=renderCards;$('leagueFilter').onchange=renderCards;$('hqFilter').onchange=()=>{HQ_FILTER=$('hqFilter').value;renderCards()};$('dateFilter').onchange=renderCards;$('mClose').onclick=closeModal;$('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};document.onkeydown=e=>{if(e.key==='Escape')closeModal()};loadCrests();loadAll();setInterval(loadAll,30000)});
-async function loadCrests(){try{const r=await fetchRetry(API+'/api/crests',2,2000);const d=await r.json();if(d.code===0&&d.data)crestMap=d.data}catch{}}
+document.addEventListener('DOMContentLoaded',()=>{renderTabs();$('statusFilter').onchange=renderCards;$('leagueFilter').onchange=renderCards;$('hqFilter').onchange=()=>{HQ_FILTER=$('hqFilter').value;renderCards()};$('dateFilter').onchange=renderCards;$('mClose').onclick=closeModal;$('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};document.onkeydown=e=>{if(e.key==='Escape')closeModal()};loadCrests();loadAll();setInterval(loadAll,30000);setInterval(()=>{if(!Object.keys(crestMap).length)loadCrests()},300000)});
+async function loadCrests(){
+    try{
+        const r=await fetchRetry(API+'/api/crests',2,2000);
+        const d=await r.json();
+        if(d.code===0&&d.data&&Object.keys(d.data).length){
+            crestMap=d.data;
+            cacheSave('crests',d.data);
+        }
+    }catch{}
+    if(!Object.keys(crestMap).length){
+        const cached=cacheLoad('crests',24*3600000);
+        if(cached)crestMap=cached;
+    }
+}
 async function loadAll(){
     $('loading').style.display='block';$('empty').style.display='none';
     try{
         const[spR,stR]=await Promise.all([fetchRetry(API+'/api/sp/latest?game_id='+curGame),fetchRetry(API+'/api/stats')]);
         const sp=await spR.json(),st=await stR.json();
-        if(sp.code===0){curData=sp;cacheSave('sp_'+curGame,sp);$('drawNo').textContent=sp.draw_no||'-';$('matchCount').textContent=sp.count||0;buildLeagueFilter(sp.data||[]);buildDateFilter(sp.data||[]);renderCards()}
+        if(sp.code===0){curData=sp;cacheSave('sp_'+curGame,sp);$('drawNo').textContent=sp.draw_no||'-';$('matchCount').textContent=sp.count||0;buildLeagueFilter(sp.data||[]);buildDateFilter(sp.data||[]);renderCards();if(!Object.keys(crestMap).length)loadCrests()}
         if(st.code===0){cacheSave('stats',st);const g=st.data[curGame];if(g)$('sellingCount').textContent=g.selling_count||0}
         $('updTime').textContent='更新: '+new Date().toLocaleTimeString();stopRetry();
     }catch(e){
@@ -200,7 +213,7 @@ function renderCards(){
 function spObjToPairs(sp){if(!sp||typeof sp!=='object')return[];return Object.entries(sp).map(([k,v])=>({label:k,value:v}))}
 function leagueBadge(name){if(!name)return'';const colors={'世界杯':'#1a5276','欧洲杯':'#2e86c1','亚洲杯':'#148f77','美洲杯':'#b9770e','非洲杯':'#6c3483','欧冠杯':'#1a237e','欧罗巴联赛':'#f57f17','洲际杯':'#880e4f','解放者杯':'#004d40','南俱杯':'#bf360c','英超':'#38003c','西甲':'#ee4540','意甲':'#024494','德甲':'#d20515','法甲':'#1e3a5f','葡超':'#006847','荷甲':'#ff6600','苏超':'#003078','英冠':'#e31837'};const clean=name.replace(/\d+$/,'').trim();const color=colors[name]||colors[clean]||'#475569';const short=clean.length>4?clean.substring(0,4):clean;return'<span style="background:'+color+';color:#fff;font-size:9px;padding:1px 4px;border-radius:3px;font-weight:600;white-space:nowrap;vertical-align:middle">'+short+'</span>'}
 function getTeamIcon(t,l){for(const[n,c]of Object.entries(COUNTRY_MAP)){if(t.includes(n))return'<img src="/img/flag/w40/'+c+'.png" alt="'+n+'" style="width:20px;height:14px;border-radius:2px;object-fit:cover;vertical-align:middle" onerror="this.style.display=\'none\'">'}const cr=findCrest(t);if(cr)return'<img src="'+crestProxy(cr)+'" alt="" style="width:18px;height:18px;object-fit:contain;vertical-align:middle" onerror="this.style.display=\'none\'">';if(l)return leagueBadge(l);return''}
-function crestProxy(url){if(!url)return'';const m=url.match(/\/(\d+)\.png$/);if(m)return'/img/crest/'+m[1]+'.png';return url}
+function crestProxy(url){if(!url)return'';try{const u=new URL(url);const ext=u.pathname.split('/').pop();return'/img/crest/'+ext}catch{const m=url.match(/\/([^\/]+\.(png|svg|jpg))$/i);return m?'/img/crest/'+m[1]:url}}
 function findCrest(t){if(!t)return null;if(crestMap[t])return crestMap[t];const en=CN_TO_EN[t];if(en){if(crestMap[en])return crestMap[en];for(const k of Object.keys(crestMap)){if(k.startsWith(en))return crestMap[k]}}const lo=t.toLowerCase();for(const[k,v]of Object.entries(crestMap)){const kl=k.toLowerCase();if(kl===lo||kl.startsWith(lo)||lo.startsWith(kl))return v}return null}
 function cardHTML(m){
     const pairs=spObjToPairs(m.sp);const bc=m.status==='销售中'?'badge-ok':m.status==='已开奖'?'badge-off':'badge-stop';
