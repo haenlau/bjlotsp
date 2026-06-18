@@ -29,6 +29,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC
 .info-tag b{color:var(--p700);font-weight:600}
 .tabs{background:var(--card);border-radius:var(--r3);padding:6px;box-shadow:var(--sh2);margin:16px 0;overflow-x:auto}
 .tabs-in{display:flex;gap:6px;min-width:max-content}
+.tabs{display:flex;align-items:center}
+.result-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+.result-tab{padding:8px 14px;border:1px solid var(--g200);border-radius:var(--r1);background:var(--card);font-size:12px;color:var(--g600);cursor:pointer;white-space:nowrap;transition:var(--tr)}
+.result-tab:hover{border-color:var(--p500)}
+.result-tab.on{background:var(--p700);color:#fff;border-color:var(--p700)}
+.rc-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.rc-league{font-size:11px;font-weight:600;color:var(--p600);background:rgba(30,71,133,.08);padding:3px 8px;border-radius:var(--r4)}
+.rc-result{font-size:12px;font-weight:700;padding:3px 10px;border-radius:var(--r4)}
+.rc-win{background:rgba(16,185,129,.15);color:var(--ok)}
+.rc-draw{background:rgba(100,116,139,.1);color:var(--g500)}
+.rc-lose{background:rgba(239,68,68,.1);color:var(--err)}
+.rc-teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.rc-team{flex:1;text-align:center}
+.rc-team .rct{font-size:13px;font-weight:600;color:var(--g800);display:flex;align-items:center;justify-content:center;gap:5px}
+.rc-score{text-align:center;padding:0 10px}
+.rc-score .sc{font-size:20px;font-weight:700;color:var(--p700)}
+.rc-score .hq{font-size:10px;color:var(--g500)}
+.rc-info{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:10px;border-top:1px solid var(--g100)}
+.rc-info-item{text-align:center}
+.rc-info-item .rl{font-size:10px;color:var(--g500);display:block}
+.rc-info-item .rv{font-size:13px;font-weight:600;color:var(--g800)}
 .tab{display:flex;align-items:center;gap:6px;padding:10px 16px;border:none;background:0;border-radius:var(--r2);cursor:pointer;font-size:13px;font-weight:500;color:var(--g600);transition:var(--tr);white-space:nowrap}
 .tab:hover{background:var(--g100)}
 .tab.on{background:linear-gradient(135deg,var(--p700),var(--p500));color:#fff;box-shadow:0 4px 12px rgba(30,71,133,.3)}
@@ -124,7 +145,8 @@ body.modal-open{overflow:hidden;position:fixed;width:100%}
         <div class="info-tag">🏟 场次: <b id="matchCount">-</b></div>
         <div class="info-tag">🟢 销售中: <b id="sellingCount">-</b></div>
     </div>
-    <div class="tabs"><div class="tabs-in" id="tabs"></div></div>
+    <div class="tabs"><div class="tabs-in" id="tabs"></div><button class="tab" id="resultTabBtn" style="margin-left:auto;border-left:1px solid var(--g200);padding-left:14px"><i>📋</i><span>开奖公告</span></button></div>
+    <div id="resultPanel" style="display:none"></div>
     <div class="filters">
         <span class="section-t" id="secTitle">胜平负 · 即时SP值</span>
         <div class="spacer" style="flex:1"></div>
@@ -179,7 +201,7 @@ const $=id=>document.getElementById(id);
 function cacheSave(k,d){try{localStorage.setItem('bj_'+k,JSON.stringify({ts:Date.now(),data:d}))}catch{}}
 function cacheLoad(k,age){try{const r=localStorage.getItem('bj_'+k);if(!r)return null;const p=JSON.parse(r);if(age&&Date.now()-p.ts>age)return null;return p.data}catch{return null}}
 async function fetchRetry(url,t=5,d=3000){for(let i=0;i<t;i++){try{const c=new AbortController();const tm=setTimeout(()=>c.abort(),10000);const r=await fetch(url,{signal:c.signal});clearTimeout(tm);if(!r.ok)throw new Error('HTTP '+r.status);return r}catch(e){if(i===t-1)throw e;await new Promise(r=>setTimeout(r,d))}}}
-document.addEventListener('DOMContentLoaded',()=>{if(localStorage.getItem('bj_disclaimer')){$('disclaimerBg').classList.add('hide')};renderTabs();$('statusFilter').onchange=renderCards;$('leagueFilter').onchange=renderCards;$('hqFilter').onchange=()=>{HQ_FILTER=$('hqFilter').value;renderCards()};$('dateFilter').onchange=renderCards;$('mClose').onclick=closeModal;$('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};document.onkeydown=e=>{if(e.key==='Escape')closeModal()};loadCrests();loadAll();setInterval(loadAll,30000);setInterval(()=>{if(!Object.keys(crestMap).length)loadCrests()},300000)});
+document.addEventListener('DOMContentLoaded',()=>{if(localStorage.getItem('bj_disclaimer')){$('disclaimerBg').classList.add('hide')};renderTabs();$('statusFilter').onchange=renderCards;$('leagueFilter').onchange=renderCards;$('hqFilter').onchange=()=>{HQ_FILTER=$('hqFilter').value;renderCards()};$('dateFilter').onchange=renderCards;$('mClose').onclick=closeModal;$('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};document.onkeydown=e=>{if(e.key==='Escape')closeModal()};$('resultTabBtn').onclick=()=>{showResults()};loadCrests();loadAll();setInterval(loadAll,30000);setInterval(()=>{if(!Object.keys(crestMap).length)loadCrests()},300000)});
 async function loadCrests(){
     try{
         const r=await fetchRetry(API+'/api/crests',2,2000);
@@ -261,6 +283,49 @@ function renderChart(hist){
 function emptyChart(){if(myChart)myChart.destroy();myChart=new Chart($('chart'),{type:'line',data:{labels:['暂无'],datasets:[{data:[0],borderColor:'#cbd5e1',backgroundColor:'rgba(203,213,225,.1)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}})}
 function closeModal(){$('modal').classList.remove('on');document.body.style.overflow='';document.body.classList.remove('modal-open');if(myChart){myChart.destroy();myChart=null}}
 const GAMES={200:{name:'胜平负',icon:'⚽'},210:{name:'上下盘',icon:'📈'},230:{name:'总进球',icon:'🥅'},240:{name:'半全场',icon:'⏱'},250:{name:'单场比分',icon:'🎯'},260:{name:'下半场比分',icon:'📝'},270:{name:'胜负过关',icon:'🏅'}};
+
+// ==================== 开奖公告（完全独立，不动loadAll）====================
+let resultShowing=false,resultGame=200;
+function showResults(){
+    if(resultShowing){hideResults();return}
+    resultShowing=true;
+    $('resultTabBtn').classList.add('on');
+    $('grid').innerHTML='';
+    $('loading').style.display='none';
+    $('empty').style.display='none';
+    $('filters').style.display='none';
+    $('resultPanel').style.display='block';
+    loadResultData();
+}
+function hideResults(){
+    resultShowing=false;
+    $('resultTabBtn').classList.remove('on');
+    $('resultPanel').style.display='none';
+    $('filters').style.display='';
+    $('resultPanel').innerHTML='';
+    renderCards();
+}
+async function loadResultData(){
+    $('resultPanel').innerHTML='<div class="load"><div class="spin"></div><span>加载中...</span></div>';
+    try{
+        const r=await fetchRetry(API+'/api/results?game_id='+resultGame);
+        const d=await r.json();
+        if(d.code!==0||!d.data||!d.data.length){$('resultPanel').innerHTML='<div class="empty"><i>📭</i><p>暂无开奖数据</p></div>';return}
+        let html='<div class="result-tabs">';
+        Object.entries(GAMES).forEach(([id,g])=>{html+='<button class="result-tab'+(id==resultGame?' on':'')+'" onclick="resultGame='+id+';loadResultData()">'+g.icon+' '+g.name+'</button>';});
+        html+='</div>';
+        html+='<div style="margin-bottom:14px;font-size:13px;color:var(--g500)">奖期 <b style="color:var(--p700)">'+d.draw_no+'</b> · 共 '+d.count+' 场</div>';
+        html+='<div class="grid">';
+        d.data.forEach(m=>{
+            const resultMap={'3':'胜','1':'平','0':'负','*':'取消'};
+            const rt=resultMap[m.result]||m.result;
+            const rc=m.result==='3'?'rc-win':m.result==='1'?'rc-draw':m.result==='0'?'rc-lose':'';
+            html+='<div class="card" style="cursor:default"><div class="rc-hd"><span class="rc-league">'+(m.league||'-')+'</span><span class="rc-result '+rc+'">'+rt+'</span></div><div class="rc-teams"><div class="rc-team"><span class="rct">'+getTeamIcon(m.host_team,m.league)+' '+(m.host_team||'-')+'</span></div><div class="rc-score"><div class="sc">'+(m.score||'-:-')+'</div><div class="hq">'+(m.handicap&&m.handicap!=='0'?'让'+m.handicap:'非让球')+'</div></div><div class="rc-team"><span class="rct">'+getTeamIcon(m.guest_team,m.league)+' '+(m.guest_team||'-')+'</span></div></div><div class="rc-info"><div class="rc-info-item"><span class="rl">开奖SP</span><span class="rv" style="color:var(--p700)">'+(m.sp_value||'-')+'</span></div><div class="rc-info-item"><span class="rl">投注额</span><span class="rv">'+(m.stake?m.stake.toFixed(2)+'万':'-')+'</span></div><div class="rc-info-item"><span class="rl">中奖注数</span><span class="rv">'+(m.hit_count||'-')+'</span></div></div><div class="card-ft">场次 '+m.match_no+' · '+(m.match_time||'-')+'</div></div>';
+        });
+        html+='</div>';
+        $('resultPanel').innerHTML=html;
+    }catch{$('resultPanel').innerHTML='<div class="empty"><i>⚠️</i><p>加载失败</p></div>'}
+}
 function acceptDisclaimer(){localStorage.setItem('bj_disclaimer','1');$('disclaimerBg').classList.add('hide')}
 </script>
 </body>
