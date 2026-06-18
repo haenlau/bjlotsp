@@ -3,7 +3,7 @@
 // /img/*  → 代理图片资源
 // 其他    → 交给 Pages 正常处理静态文件
 
-const API_ORIGIN = 'https://api.dawn.us.ci:8899';
+const API_ORIGIN = 'http://api.dawn.us.ci:8899';
 
 export async function onRequest(context) {
     const url = new URL(context.request.url);
