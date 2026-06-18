@@ -198,7 +198,7 @@ let HQ_FILTER='all',curGame=200,curData=null,myChart=null,retryTimer=null,crestM
 const $=id=>document.getElementById(id);
 function cacheSave(k,d){try{localStorage.setItem('bj_'+k,JSON.stringify({ts:Date.now(),data:d}))}catch{}}
 function cacheLoad(k,age){try{const r=localStorage.getItem('bj_'+k);if(!r)return null;const p=JSON.parse(r);if(age&&Date.now()-p.ts>age)return null;return p.data}catch{return null}}
-async function fetchRetry(url,t=5,d=3000){for(let i=0;i<t;i++){try{const c=new AbortController();const tm=setTimeout(()=>c.abort(),10000);const r=await fetch(url,{signal:c.signal});clearTimeout(tm);if(!r.ok)throw new Error('HTTP '+r.status);return r}catch(e){if(i===t-1)throw e;await new Promise(r=>setTimeout(r,d))}}}
+async function fetchRetry(url,t=3,d=2000){for(let i=0;i<t;i++){try{const c=new AbortController();const tm=setTimeout(()=>c.abort(),6000);const r=await fetch(url,{signal:c.signal});clearTimeout(tm);if(!r.ok)throw new Error('HTTP '+r.status);return r}catch(e){if(i===t-1)throw e;await new Promise(r=>setTimeout(r,d))}}}
 document.addEventListener('DOMContentLoaded',()=>{if(localStorage.getItem('bj_disclaimer')){$('disclaimerBg').classList.add('hide')};renderTabs();$('statusFilter').onchange=renderCards;$('leagueFilter').onchange=renderCards;$('hqFilter').onchange=()=>{HQ_FILTER=$('hqFilter').value;renderCards()};$('dateFilter').onchange=renderCards;$('mClose').onclick=closeModal;$('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};document.onkeydown=e=>{if(e.key==='Escape')closeModal()};loadCrests();loadAll();setInterval(loadAll,30000);setInterval(()=>{if(!Object.keys(crestMap).length)loadCrests()},300000)});
 async function loadCrests(){
     try{
@@ -215,7 +215,17 @@ async function loadCrests(){
     }
 }
 async function loadAll(){
-    $('loading').style.display='block';$('empty').style.display='none';
+    // 先用缓存秒切
+    const cached=cacheLoad('sp_'+curGame,5*60000);
+    if(cached&&cached.data&&cached.data.length){
+        curData=cached;$('loading').style.display='none';
+        $('drawNo').textContent=cached.draw_no||'-';
+        $('matchCount').textContent=cached.count||0;
+        buildLeagueFilter(cached.data||[]);buildDateFilter(cached.data||[]);renderCards();
+    }else{
+        $('loading').style.display='block';
+    }
+    $('empty').style.display='none';
     try{
         const[spR,stR]=await Promise.all([fetchRetry(API+'/api/sp/latest?game_id='+curGame),fetchRetry(API+'/api/stats')]);
         const sp=await spR.json(),st=await stR.json();
