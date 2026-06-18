@@ -256,7 +256,7 @@ async function refreshAll(){
 
 // 点击标签时调用
 function showGame(gameId){
-    curGame=gameId;
+    curGame=gameId;curData=null;$('grid').innerHTML='';
     if(memCache['_stats']){
         const g=memCache['_stats'][gameId];
         if(g)$('sellingCount').textContent=g.selling_count||0;
