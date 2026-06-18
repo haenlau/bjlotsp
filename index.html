@@ -195,11 +195,12 @@ const FLAG_CDN='/img/flag';
 const COUNTRY_MAP={'中国':'cn','日本':'jp','韩国':'kr','澳大利亚':'au','伊朗':'ir','沙特':'sa','卡塔尔':'qa','阿联酋':'ae','伊拉克':'iq','约旦':'jo','叙利亚':'sy','黎巴嫩':'lb','阿曼':'om','巴林':'bh','朝鲜':'kp','乌兹别克斯坦':'uz','泰国':'th','越南':'vn','印度尼西亚':'id','马来西亚':'my','印度':'in','菲律宾':'ph','英格兰':'gb-eng','苏格兰':'gb-sct','威尔士':'gb-wls','德国':'de','法国':'fr','西班牙':'es','意大利':'it','葡萄牙':'pt','荷兰':'nl','比利时':'be','瑞士':'ch','奥地利':'at','波兰':'pl','捷克':'cz','斯洛伐克':'sk','克罗地亚':'hr','塞尔维亚':'rs','斯洛文尼亚':'si','波黑':'ba','北马其顿':'mk','黑山':'me','阿尔巴尼亚':'al','希腊':'gr','土耳其':'tr','罗马尼亚':'ro','保加利亚':'bg','匈牙利':'hu','丹麦':'dk','挪威':'no','瑞典':'se','芬兰':'fi','冰岛':'is','爱尔兰':'ie','俄罗斯':'ru','乌克兰':'ua','白俄罗斯':'by','格鲁吉亚':'ge','以色列':'il','塞浦路斯':'cy','科索沃':'xk','卢森堡':'lu','马耳他':'mt','立陶宛':'lt','拉脱维亚':'lv','爱沙尼亚':'ee','巴西':'br','阿根廷':'ar','乌拉圭':'uy','哥伦比亚':'co','智利':'cl','厄瓜多尔':'ec','巴拉圭':'py','秘鲁':'pe','委内瑞拉':'ve','墨西哥':'mx','美国':'us','加拿大':'ca','哥斯达黎加':'cr','巴拿马':'pa','洪都拉斯':'hn','牙买加':'jm','尼日利亚':'ng','喀麦隆':'cm','科特迪瓦':'ci','塞内加尔':'sn','加纳':'gh','埃及':'eg','摩洛哥':'ma','突尼斯':'tn','阿尔及利亚':'dz','南非':'za','刚果':'cd','刚果(金)':'cd','赞比亚':'zm','马里':'ml','新西兰':'nz','巴拉圭':'py','玻利维亚':'bo'};
 const CN_TO_EN={'阿森纳':'Arsenal','曼彻斯特城':'Manchester City','曼城':'Manchester City','利物浦':'Liverpool','曼联':'Man United','切尔西':'Chelsea','托特纳姆热刺':'Tottenham Hotspur','热刺':'Tottenham Hotspur','纽卡斯尔联':'Newcastle','纽卡':'Newcastle','西汉姆联':'West Ham United','布莱顿':'Brighton','阿斯顿维拉':'Aston Villa','水晶宫':'Crystal Palace','富勒姆':'Fulham','布伦特福德':'Brentford','伯恩茅斯':'AFC Bournemouth','狼队':'Wolverhampton','诺丁汉森林':'Nottingham Forest','伯恩利':'Burnley','埃弗顿':'Everton','皇家马德里':'Real Madrid','皇马':'Real Madrid','巴塞罗那':'FC Barcelona','巴萨':'FC Barcelona','马德里竞技':'Atletico Madrid','马竞':'Atletico Madrid','塞维利亚':'Sevilla','皇家社会':'Real Sociedad','毕尔巴鄂竞技':'Athletic Club','比利亚雷亚尔':'Villarreal','瓦伦西亚':'Valencia','赫塔费':'Getafe','皇家贝蒂斯':'Real Betis','赫罗纳':'Girona','西班牙人':'RCD Espanyol','AC米兰':'AC Milan','国际米兰':'Inter','国米':'Inter','尤文图斯':'Juventus','尤文':'Juventus','那不勒斯':'SSC Napoli','罗马':'AS Roma','拉齐奥':'SS Lazio','亚特兰大':'Atalanta','佛罗伦萨':'AC Fiorentina','都灵':'Torino','热那亚':'Genoa','帕尔马':'Parma','科莫':'Como','蒙扎':'AC Monza','拜仁慕尼黑':'Bayern','拜仁':'Bayern','多特蒙德':'Dortmund','多特':'Dortmund','勒沃库森':'Bayer Leverkusen','莱比锡':'RB Leipzig','法兰克福':'Eintracht Frankfurt','斯图加特':'Stuttgart','巴黎圣日耳曼':'Paris Saint-Germain FC','巴黎':'Paris Saint-Germain FC','马赛':'Olympique Marseille','里昂':'Olympique Lyonnais','摩纳哥':'AS Monaco','里尔':'LOSC Lille','尼斯':'OGC Nice','雷恩':'Stade Rennais','朗斯':'RC Lens','波尔图':'FC Porto','本菲卡':'SL Benfica','里斯本竞技':'Sporting CP','布拉加':'SC Braga','埃因霍温':'PSV','阿贾克斯':'Ajax','费耶诺德':'Feyenoord','凯尔特人':'Celtic','加拉塔萨雷':'Galatasaray','费内巴切':'Fenerbahce'};
 let HQ_FILTER='all',curGame=200,curData=null,myChart=null,retryTimer=null,crestMap={},viewMode='sp';
+let memCache={}; // 内存缓存 { gameId: { data, ts } }
 const $=id=>document.getElementById(id);
 function cacheSave(k,d){try{localStorage.setItem('bj_'+k,JSON.stringify({ts:Date.now(),data:d}))}catch{}}
 function cacheLoad(k,age){try{const r=localStorage.getItem('bj_'+k);if(!r)return null;const p=JSON.parse(r);if(age&&Date.now()-p.ts>age)return null;return p.data}catch{return null}}
 async function fetchRetry(url,t=3,d=2000){for(let i=0;i<t;i++){try{const c=new AbortController();const tm=setTimeout(()=>c.abort(),6000);const r=await fetch(url,{signal:c.signal});clearTimeout(tm);if(!r.ok)throw new Error('HTTP '+r.status);return r}catch(e){if(i===t-1)throw e;await new Promise(r=>setTimeout(r,d))}}}
-document.addEventListener('DOMContentLoaded',()=>{if(localStorage.getItem('bj_disclaimer')){$('disclaimerBg').classList.add('hide')};renderTabs();$('statusFilter').onchange=renderCards;$('leagueFilter').onchange=renderCards;$('hqFilter').onchange=()=>{HQ_FILTER=$('hqFilter').value;renderCards()};$('dateFilter').onchange=renderCards;$('mClose').onclick=closeModal;$('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};document.onkeydown=e=>{if(e.key==='Escape')closeModal()};loadCrests();loadAll();setInterval(loadAll,30000);setInterval(()=>{if(!Object.keys(crestMap).length)loadCrests()},300000)});
+document.addEventListener('DOMContentLoaded',()=>{if(localStorage.getItem('bj_disclaimer')){$('disclaimerBg').classList.add('hide')};renderTabs();$('statusFilter').onchange=renderCards;$('leagueFilter').onchange=renderCards;$('hqFilter').onchange=()=>{HQ_FILTER=$('hqFilter').value;renderCards()};$('dateFilter').onchange=renderCards;$('mClose').onclick=closeModal;$('modal').onclick=e=>{if(e.target===$('modal'))closeModal()};document.onkeydown=e=>{if(e.key==='Escape')closeModal()};loadCrests();showGame(curGame);refreshAll();setInterval(refreshAll,60000);setInterval(()=>{if(!Object.keys(crestMap).length)loadCrests()},300000)});
 async function loadCrests(){
     try{
         const r=await fetchRetry(API+'/api/crests',2,2000);
@@ -214,34 +215,73 @@ async function loadCrests(){
         if(cached)crestMap=cached;
     }
 }
-async function loadAll(){
-    // 先用缓存秒切
-    const cached=cacheLoad('sp_'+curGame,5*60000);
+// 从内存缓存渲染（0ms）
+function renderFromCache(gameId){
+    const c=memCache[gameId];
+    if(!c||!c.data||!c.data.data||!c.data.data.length)return false;
+    curData=c.data;$('loading').style.display='none';
+    $('drawNo').textContent=c.data.draw_no||'-';
+    $('matchCount').textContent=c.data.count||0;
+    buildLeagueFilter(c.data.data||[]);buildDateFilter(c.data.data||[]);renderCards();
+    return true;
+}
+
+// 刷新单个玩法（后台静默）
+async function refreshGame(gameId){
+    try{
+        const r=await fetch(API+'/api/sp/latest?game_id='+gameId);
+        const d=await r.json();
+        if(d.code===0&&d.data&&d.data.length){
+            memCache[gameId]={data:d,ts:Date.now()};
+            cacheSave('sp_'+gameId,d);
+        }
+    }catch{}
+}
+
+// 刷新所有玩法（定时调用）
+async function refreshAll(){
+    const ids=Object.keys(GAMES);
+    for(const id of ids){
+        await refreshGame(id);
+        await new Promise(r=>setTimeout(r,100));
+    }
+    // 刷新stats
+    try{
+        const r=await fetch(API+'/api/stats');
+        const d=await r.json();
+        if(d.code===0){memCache['_stats']=d;cacheSave('stats',d);}
+    }catch{}
+    $('updTime').textContent='更新: '+new Date().toLocaleTimeString();
+}
+
+// 点击标签时调用
+function showGame(gameId){
+    curGame=gameId;
+    if(memCache['_stats']){
+        const g=memCache['_stats'][gameId];
+        if(g)$('sellingCount').textContent=g.selling_count||0;
+    }
+    if(renderFromCache(gameId))return;
+    // 缓存没有，用localStorage兜底
+    const cached=cacheLoad('sp_'+gameId,30*60000);
     if(cached&&cached.data&&cached.data.length){
         curData=cached;$('loading').style.display='none';
         $('drawNo').textContent=cached.draw_no||'-';
         $('matchCount').textContent=cached.count||0;
         buildLeagueFilter(cached.data||[]);buildDateFilter(cached.data||[]);renderCards();
-    }else{
-        $('loading').style.display='block';
+        return;
     }
-    $('empty').style.display='none';
-    try{
-        const[spR,stR]=await Promise.all([fetchRetry(API+'/api/sp/latest?game_id='+curGame),fetchRetry(API+'/api/stats')]);
-        const sp=await spR.json(),st=await stR.json();
-        if(sp.code===0){curData=sp;cacheSave('sp_'+curGame,sp);$('drawNo').textContent=sp.draw_no||'-';$('matchCount').textContent=sp.count||0;buildLeagueFilter(sp.data||[]);buildDateFilter(sp.data||[]);renderCards();if(!Object.keys(crestMap).length)loadCrests()}
-        if(st.code===0){cacheSave('stats',st);const g=st.data[curGame];if(g)$('sellingCount').textContent=g.selling_count||0}
-        $('updTime').textContent='更新: '+new Date().toLocaleTimeString();stopRetry();
-    }catch(e){
-        const cs=cacheLoad('sp_'+curGame,30*60000),cst=cacheLoad('stats',30*60000);
-        if(cs){curData=cs;$('drawNo').textContent=cs.draw_no||'-';$('matchCount').textContent=cs.count||0;buildLeagueFilter(cs.data||[]);buildDateFilter(cs.data||[]);renderCards();$('updTime').textContent='⚠ 使用缓存';$('loading').style.display='none'}
-        else{$('loading').style.display='none';$('grid').innerHTML='<div class="empty"><i>📡</i><p>连接服务器中...</p><p class="err-info">每隔3秒自动重试</p></div>'}
-        if(cst){const g=cst.data[curGame];if(g)$('sellingCount').textContent=g.selling_count||0}
-        startRetry();
-    }
+    // 都没有，显示loading等网络
+    $('loading').style.display='block';$('empty').style.display='none';
+    refreshGame(gameId).then(()=>{
+        if(curGame!==gameId)return;
+        renderFromCache(gameId);
+        $('loading').style.display='none';
+    });
 }
-function startRetry(){if(retryTimer)return;retryTimer=setInterval(()=>loadAll(),3000)}
-function stopRetry(){if(retryTimer){clearInterval(retryTimer);retryTimer=null}}
+
+// 兼容旧调用
+async function loadAll(){showGame(curGame);refreshGame(curGame);}
 function renderTabs(){
     let html=Object.entries(GAMES).map(([id,g])=>'<button class="tab'+(id==curGame&&viewMode==='sp'?' on':'')+'" data-g="'+id+'"><i>'+g.icon+'</i><span>'+g.name+'</span></button>').join('');
     html+='<button class="tab'+(viewMode==='result'?' on':'')+'" data-g="result" style="margin-left:8px;border-left:1px solid var(--g200);padding-left:14px"><i>📋</i><span>开奖公告</span></button>';
@@ -261,7 +301,7 @@ function renderTabs(){
                 renderTabs();
                 $('secTitle').textContent=GAMES[curGame].name+' · 即时SP值';
                 $('filters').style.display='';
-                loadAll();
+                showGame(curGame);
             }
         };
     });
