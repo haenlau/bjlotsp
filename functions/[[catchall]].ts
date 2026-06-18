@@ -1,7 +1,4 @@
 // Cloudflare Pages Function - 统一代理
-// /api/*  → 转发到后端API服务器
-// /img/*  → 代理图片资源
-// 其他    → 交给 Pages 正常处理静态文件
 
 const API_ORIGIN = 'http://api.dawn.us.ci:8899';
 
@@ -15,40 +12,42 @@ export async function onRequest(context) {
         try {
             const resp = await fetch(targetUrl, {
                 method: context.request.method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'Mozilla/5.0',
-                },
-                signal: AbortSignal.timeout(25000),
+                headers: { 'User-Agent': 'Mozilla/5.0' },
+                signal: AbortSignal.timeout(20000),
             });
 
-            const headers = new Headers();
-            headers.set('Content-Type', 'application/json; charset=utf-8');
-            headers.set('Cache-Control', 'public, max-age=3');
-            headers.set('Access-Control-Allow-Origin', '*');
+            if (!resp.ok) {
+                return new Response(
+                    JSON.stringify({ code: -1, msg: 'Backend ' + resp.status }),
+                    { status: resp.status, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } }
+                );
+            }
 
-            return new Response(resp.body, {
-                status: resp.status,
-                headers,
+            const body = await resp.text();
+            return new Response(body, {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Cache-Control': 'public, max-age=3',
+                    'Access-Control-Allow-Origin': '*',
+                },
             });
         } catch (e) {
             return new Response(
-                JSON.stringify({ code: -1, msg: 'API请求失败: ' + e.message }),
-                { status: 502, headers: { 'Content-Type': 'application/json' } }
+                JSON.stringify({ code: -1, msg: 'Proxy error: ' + e.message }),
+                { status: 502, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } }
             );
         }
     }
 
     // /img/flag/* → flagcdn.com
     if (path.startsWith('/img/flag/')) {
-        const targetUrl = 'https://flagcdn.com/' + path.replace('/img/flag/', '');
-        return proxyImage(targetUrl);
+        return proxyImage('https://flagcdn.com/' + path.replace('/img/flag/', ''));
     }
 
     // /img/crest/* → crests.football-data.org
     if (path.startsWith('/img/crest/')) {
-        const targetUrl = 'https://crests.football-data.org/' + path.replace('/img/crest/', '');
-        return proxyImage(targetUrl);
+        return proxyImage('https://crests.football-data.org/' + path.replace('/img/crest/', ''));
     }
 
     // 其他 → 静态文件
@@ -61,13 +60,10 @@ async function proxyImage(targetUrl) {
             headers: { 'User-Agent': 'Mozilla/5.0' },
             cf: { cacheTtl: 604800, cacheEverything: true },
         });
-
         if (!resp.ok) return new Response(null, { status: resp.status });
-
         const headers = new Headers(resp.headers);
         headers.set('Cache-Control', 'public, max-age=604800');
         headers.set('Access-Control-Allow-Origin', '*');
-
         return new Response(resp.body, { status: resp.status, headers });
     } catch {
         return new Response(null, { status: 502 });
